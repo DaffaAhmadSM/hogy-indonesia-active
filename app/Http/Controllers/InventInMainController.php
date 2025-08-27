@@ -12,7 +12,7 @@ class InventInMainController extends Controller
      */
     public function index()
     {
-        //
+        return view('Report.invent-in-main');
     }
 
     /**
@@ -34,9 +34,28 @@ class InventInMainController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show()
     {
-        ProdreceiptV::all();
+        return ProdreceiptV::orderBy("purchRecId")->orderBy("ItemId")->cursorPaginate(50, [
+            'purchRecId',
+            'transDate',
+            'requestNo',
+            'docBc',
+            'registrationNo',
+            'registrationDate',
+            'invNoVend',
+            'invDateVend',
+            'VendName',
+            'ItemId',
+            'ItemName',
+            'unit',
+            'qty',
+            'currencyCode',
+            'price',
+            'amount',
+            'notes',
+            'PackCode'
+        ]);
     }
 
     /**

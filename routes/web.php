@@ -1,16 +1,17 @@
 <?php
 
+use App\Http\Controllers\InventInMainController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('main-layout');
 })->name('home');
 
-Route::get('/test', function () {
-
+Route::group(['prefix' => 'report'], function () {
+    Route::get('invent-in-main', [InventInMainController::class, 'index'])->name('report.invent-in-main');
 });
 
 Route::view('dashboard', 'dashboard')
@@ -25,4 +26,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
