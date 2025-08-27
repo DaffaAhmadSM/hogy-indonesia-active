@@ -8,18 +8,20 @@
 		}
 	</style>
 
-	<div class="flex flex-col gap-0 max-h-screen">
+	<div class="flex flex-col gap-0 max-h-full">
 		<div class="flex align-middle justify-center">
 			<h1 class="text-2xl font-bold mb-4">Laporan Pemasukan Barang</h1>
 		</div>
-		<div class="flex flex-row px-6 py-2">
+		<div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
+			@csrf
 			<div class="antialiased font-sans">
 				<div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
 					<div class="container mx-auto px-4 py-2 md:py-10">
 						<div class="mb-5 w-64">
 							<label for="datepicker" class="font-bold mb-1 text-gray-700 block">from Date</label>
 							<div class="relative">
-								<input type="hidden" name="from-date" x-ref="date">
+								<input type="hidden" name="fromDate" x-ref="date" id="fromDate-data"
+									value="{{ request('fromDate') }}">
 								<input type="text" readonly x-model="datepickerValue" @click="showDatepicker = !showDatepicker"
 									@keydown.escape="showDatepicker = false"
 									class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
@@ -31,8 +33,8 @@
 											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 									</svg>
 								</div>
-								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0" style="width: 17rem"
-									x-show.transition="showDatepicker" @click.away="showDatepicker = false">
+								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
+									style="width: 17rem" x-show.transition="showDatepicker" @click.away="showDatepicker = false">
 
 									<div class="flex justify-between items-center mb-2">
 										<div>
@@ -101,7 +103,7 @@
 						<div class="mb-5 w-64">
 							<label for="datepicker" class="font-bold mb-1 text-gray-700 block">to Date</label>
 							<div class="relative">
-								<input type="hidden" name="to-date" x-ref="date">
+								<input type="hidden" name="toDate" x-ref="date" id="toDate-data" value="{{ request('toDate') }}">
 								<input type="text" readonly x-model="datepickerValue" @click="showDatepicker = !showDatepicker"
 									@keydown.escape="showDatepicker = false"
 									class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
@@ -113,8 +115,8 @@
 											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 									</svg>
 								</div>
-								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0" style="width: 17rem"
-									x-show.transition="showDatepicker" @click.away="showDatepicker = false">
+								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
+									style="width: 17rem" x-show.transition="showDatepicker" @click.away="showDatepicker = false">
 
 									<div class="flex justify-between items-center mb-2">
 										<div>
@@ -179,50 +181,51 @@
 
 
 
-			<div class="flex w-full max-w-xs flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white rounded"
+			<div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white rounded"
 				x-data="{ search: '' }">
 				<div class="container mx-auto px-4 py-2 md:py-10">
 					<div
-						class="flex w-full max-w-xs flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white px-4 py-2 rounded">
+						class="flex w-full max-w-md flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white px-4 py-2 rounded">
 						<label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
-						<input id="keyword" type="text"
-							class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75 dark:border-neutral-700 dark:bg-neutral-900/50 dark:focus-visible:outline-white"
-							name="keyword" placeholder="search" x-model="search" />
+						<div class="flex flex-row gap-2 w-full">
+							<input id="keyword" type="text"
+								class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75 dark:border-neutral-700 dark:bg-neutral-900/50 dark:focus-visible:outline-white"
+								name="keyword" placeholder="search" x-model="search" />
+							<button hx-get="{{ route('report.invent-in-main.search') }}"
+								hx-include="#fromDate-data, #toDate-data, #keyword"
+								class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
+								Search
+							</button>
+						</div>
 					</div>
+
 				</div>
 			</div>
-
 		</div>
 
-		<div class="max-h-screen overflow-x-auto">
-			<table class="min-w-full divide-y-2 divide-gray-200">
+		<div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+			<table class="w-full table-fixed divide-y-2 divide-gray-200">
 				<thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
 					<tr class="*:font-medium *:text-gray-900">
-						<th class="px-3 py-2 whitespace-nowrap">Jenis</th>
-						<th class="px-3 py-2 whitespace-nowrap">No Aju</th>
-						<th class="px-3 py-2 whitespace-nowrap">No Daftar</th>
-						<th class="px-3 py-2 whitespace-nowrap">Tgl Daftar</th>
-						<th class="px-3 py-2 whitespace-nowrap">Nomor</th>
-						<th class="px-3 py-2 whitespace-nowrap">Tgl Terima</th>
-						<th class="px-3 py-2 whitespace-nowrap">Pengirim</th>
-						<th class="px-3 py-2 whitespace-nowrap">Kode barang</th>
-						<th class="px-3 py-2 whitespace-nowrap">Nama barang</th>
-						<th class="px-3 py-2 whitespace-nowrap">QTY</th>
-						<th class="px-3 py-2 whitespace-nowrap">Satuan</th>
-						<th class="px-3 py-2 whitespace-nowrap">Harga</th>
-						<th class="px-3 py-2 whitespace-nowrap">Nilai</th>
-						<th class="px-3 py-2 whitespace-nowrap">Keterangan</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
+						<th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
+						<th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Nomor</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Tgl Terima</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Pengirim</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
+						<th class="px-3 py-2 whitespace-normal break-words">QTY</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Harga</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Nilai</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Keterangan</th>
 					</tr>
 				</thead>
 
-				<tbody class="divide-y divide-gray-200">
-					{{-- @for ($i = 0; $i < 50; $i++) <tr class="*:text-gray-900 *:first:font-medium">
-						<td class="px-3 py-2 whitespace-nowrap">Name {{ $i }}</td>
-						<td class="px-3 py-2 whitespace-nowrap">Date of Birth {{ $i }}</td>
-						<td class="px-3 py-2 whitespace-nowrap">Role {{ $i }}</td>
-						<td class="px-3 py-2 whitespace-nowrap">Salary {{ $i }}</td>
-						</tr>
-						@endfor --}}
+				<tbody class="divide-y divide-gray-200" id="prod-receipt-table-body"
+					hx-get="{{ route('report.invent-in-main.search') }}" hx-trigger="load" hx-swap="innerHTML">
 				</tbody>
 			</table>
 		</div>
@@ -246,10 +249,20 @@
 				days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 
 				initDate() {
-					let today = new Date();
-					this.month = today.getMonth();
-					this.year = today.getFullYear();
-					this.datepickerValue = new Date(this.year, this.month, today.getDate()).toDateString();
+					let base;
+					const v = this.$refs?.date?.value;
+					if (v) {
+						const parts = v.split('-').map(Number);
+						const y = parts[0];
+						const m = (parts[1] || 1) - 1; // 0-based
+						const d = parts[2] || 1;
+						base = new Date(y, m, d);
+					} else {
+						base = new Date();
+					}
+					this.month = base.getMonth();
+					this.year = base.getFullYear();
+					this.datepickerValue = new Date(this.year, this.month, base.getDate()).toDateString();
 				},
 
 				isToday(date) {
@@ -263,7 +276,8 @@
 					let selectedDate = new Date(this.year, this.month, date);
 					this.datepickerValue = selectedDate.toDateString();
 
-					this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + selectedDate.getMonth()).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
+					// Month is zero-based in JS Date; add 1 for YYYY-MM-DD
+					this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
 
 					console.log(this.$refs.date.value);
 

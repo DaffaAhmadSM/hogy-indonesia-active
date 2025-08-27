@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" hx-headers='{"X-CSRF-TOKEN": @csrf_token()}'>
 
 <head>
   <meta charset="UTF-8">

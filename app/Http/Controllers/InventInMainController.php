@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ProdreceiptV;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class InventInMainController extends Controller
 {
@@ -12,7 +14,44 @@ class InventInMainController extends Controller
      */
     public function index()
     {
-        return view('Report.invent-in-main');
+        // $validator = Validator::make(request()->all(), [
+        //     'fromDate' => 'required|date',
+        //     'toDate' => 'required|date|after_or_equal:fromDate',
+        //     'keyword' => 'nullable|string|max:255',
+        // ]);
+
+        // if ($validator->fails()) {
+        //     return redirect()->back()->withErrors($validator)->withInput();
+        // }
+
+        $fromDate = Carbon::now()->startOfMonth();
+        $toDate = Carbon::now()->endOfMonth();
+
+        $prod_receipt = ProdreceiptV::orderBy("registrationDate")->orderBy("purchRecId")->orderBy("ItemId")
+            ->where('isCancel', 0)
+            ->cursorPaginate(50, [
+                'purchRecId',
+                'transDate',
+                'requestNo',
+                'docBc',
+                'registrationNo',
+                'registrationDate',
+                'invNoVend',
+                'invDateVend',
+                'VendName',
+                'ItemId',
+                'ItemName',
+                'unit',
+                'qty',
+                'currencyCode',
+                'price',
+                'amount',
+                'notes',
+                'PackCode'
+            ]);
+
+
+        return view('Report.invent-in-main', compact('prod_receipt'));
     }
 
     /**
@@ -36,26 +75,6 @@ class InventInMainController extends Controller
      */
     public function show()
     {
-        return ProdreceiptV::orderBy("purchRecId")->orderBy("ItemId")->cursorPaginate(50, [
-            'purchRecId',
-            'transDate',
-            'requestNo',
-            'docBc',
-            'registrationNo',
-            'registrationDate',
-            'invNoVend',
-            'invDateVend',
-            'VendName',
-            'ItemId',
-            'ItemName',
-            'unit',
-            'qty',
-            'currencyCode',
-            'price',
-            'amount',
-            'notes',
-            'PackCode'
-        ]);
     }
 
     /**
@@ -80,5 +99,75 @@ class InventInMainController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function hxSearch(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'fromDate' => 'date|date_format:Y-m-d',
+            'toDate' => 'date|after_or_equal:fromDate|date_format:Y-m-d',
+            'keyword' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $prod_receipt = ProdreceiptV::orderBy("registrationDate")
+            ->orderBy("purchRecId")
+            ->orderBy("ItemId")
+            ->where('isCancel', 0);
+
+        $keyword = $request->input('keyword');
+
+        if ($request->input('fromDate') != null) {
+
+            $fromDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay();
+
+            if ($request->input('toDate') != null) {
+                $toDate = Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay();
+            } else {
+                $toDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->endOfDay();
+            }
+
+            $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
+
+        }
+
+        if ($keyword != null) {
+            $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('purchRecId', 'like', "%$keyword%")
+                        ->orWhere('ItemId', 'like', "%$keyword%")
+                        ->orWhere('ItemName', 'like', "%$keyword%")
+                        ->orWhere('VendName', 'like', "%$keyword%");
+                });
+            });
+        }
+
+
+        $prod_receipt = $prod_receipt
+            ->cursorPaginate(50, [
+                'purchRecId',
+                'transDate',
+                'requestNo',
+                'docBc',
+                'registrationNo',
+                'registrationDate',
+                'invNoVend',
+                'invDateVend',
+                'VendName',
+                'ItemId',
+                'ItemName',
+                'unit',
+                'qty',
+                'currencyCode',
+                'price',
+                'amount',
+                'notes',
+                'PackCode'
+            ]);
+
+        return view('Response.Report.InventInMain.search', compact('prod_receipt'));
     }
 }
