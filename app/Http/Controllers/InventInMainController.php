@@ -101,6 +101,28 @@ class InventInMainController extends Controller
         //
     }
 
+
+    public function export(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'fromDate' => 'date|date_format:Y-m-d',
+            'toDate' => 'date|after_or_equal:fromDate|date_format:Y-m-d',
+            'keyword' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $keywords = $request->input('keyword');
+
+        $fileName = 'Laporan_Penerimaan_Barang_' . ($fromDate ?? '') . '_' . ($toDate ?? '') . '.xlsx';
+
+        return (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->download($fileName);
+    }
+
     public function hxSearch(Request $request)
     {
         $validator = Validator::make($request->all(), [

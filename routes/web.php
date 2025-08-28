@@ -14,6 +14,8 @@ Route::group(['prefix' => 'report'], function () {
 
     Route::group(['prefix' => 'invent-in-main'], function () {
         Route::get('/', [InventInMainController::class, 'index'])->name('report.invent-in-main');
+        Route::get('/export', [InventInMainController::class, 'export'])->name('report.invent-in-main.export');
+
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [InventInMainController::class, 'hxSearch'])->name('report.invent-in-main.search');
         });
