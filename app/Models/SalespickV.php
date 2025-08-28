@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class SalespickV extends Model
 {
-    //
+    protected $table = 'salespick_v';
 }

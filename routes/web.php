@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\InventInMainController;
-use App\Livewire\Settings\Appearance;
-use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Appearance;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InventInMainController;
+use App\Http\Controllers\InventOutMainController;
 
 Route::get('/', function () {
     return view('main-layout');
@@ -18,6 +19,15 @@ Route::group(['prefix' => 'report'], function () {
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [InventInMainController::class, 'hxSearch'])->name('report.invent-in-main.search');
+        });
+    });
+
+    Route::group(['prefix' => 'invent-out-main'], function () {
+        Route::get('/', [InventOutMainController::class, 'index'])->name('report.invent-out-main');
+        Route::get('/export', [InventOutMainController::class, 'export'])->name('report.invent-out-main.export');
+
+        Route::group(['prefix' => 'hx'], function () {
+            Route::get('/search', [InventOutMainController::class, 'hxSearch'])->name('report.invent-out-main.search');
         });
     });
 

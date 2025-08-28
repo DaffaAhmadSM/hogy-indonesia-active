@@ -193,7 +193,7 @@
 								name="keyword" placeholder="search" x-model="search" />
 							<button hx-get="{{ route('report.invent-in-main.search') }}"
 								hx-include="#fromDate-data, #toDate-data, #keyword"
-								class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
+								class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
 								Search
 							</button>
 						</div>
