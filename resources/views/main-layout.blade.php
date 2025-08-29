@@ -41,7 +41,7 @@
                 <button x-ref="button" x-on:click="toggle()" :aria-expanded="open"
                   :aria-controls="$id('dropdown-button')" type="button"
                   class="relative flex items-center whitespace-nowrap justify-center gap-2 py-2 rounded-lg shadow-sm bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 hover:border-gray-200 px-4">
-                  <span>Options</span>
+                  <span>Laporan</span>
 
                   <!-- Heroicon: micro chevron-down -->
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
