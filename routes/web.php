@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProductWipMainController;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Appearance;
@@ -28,6 +29,15 @@ Route::group(['prefix' => 'report'], function () {
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [InventOutMainController::class, 'hxSearch'])->name('report.invent-out-main.search');
+        });
+    });
+
+    Route::group(['prefix' => 'product-wip-main'], function () {
+        Route::get('/', [ProductWipMainController::class, 'index'])->name('report.product-wip-main');
+        Route::get('/export', [ProductWipMainController::class, 'export'])->name('report.product-wip-main.export');
+
+        Route::group(['prefix' => 'hx'], function () {
+            Route::get('/search', [ProductWipMainController::class, 'hxSearch'])->name('report.product-wip-main.search');
         });
     });
 
