@@ -136,8 +136,12 @@
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body"
-                    hx-get="{{ route('report.product-wip-main.search') }}" hx-trigger="load" hx-swap="innerHTML">
+                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                    <tr hx-get="{{ route('report.product-wip-main.search') }}" hx-trigger="load" hx-swap="outerHTML">
+                        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+                            @include('components.loading-spinner');
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>

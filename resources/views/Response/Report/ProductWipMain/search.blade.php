@@ -8,10 +8,9 @@
 @endforeach
 @if ($prod_tr->hasMorePages())
     {{-- infinite scroll --}}
-    <tr hx-get="{{ $prod_tr->nextPageUrl() }}" hx-trigger="intersect once" hx-swap="afterend">
-        <td class="px-3 py-2 whitespace-normal break-words align-top"></td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top"></td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top"></td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top"></td>
+    <tr hx-get="{{ $prod_tr->nextPageUrl() }}" hx-trigger="intersect once" hx-swap="outerHTML">
+        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+            @include('components.loading-spinner');
+        </td>
     </tr>
 @endif

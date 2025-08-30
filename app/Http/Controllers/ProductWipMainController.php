@@ -143,7 +143,7 @@ class ProductWipMainController extends Controller
                     'unitId',
                     DB::raw('ROUND(SUM(originalQty), 2) as jumlah')
                 )
-                ->cursorPaginate(100);
+                ->cursorPaginate(300);
         });
 
         return view('Response.Report.ProductWipMain.search', compact('prod_tr'));
