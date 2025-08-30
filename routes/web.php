@@ -7,6 +7,7 @@ use App\Livewire\Settings\Appearance;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InventInMainController;
 use App\Http\Controllers\InventOutMainController;
+use App\Http\Controllers\ProductBbMainController;
 
 Route::get('/', function () {
     return view('main-layout');
@@ -38,6 +39,15 @@ Route::group(['prefix' => 'report'], function () {
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [ProductWipMainController::class, 'hxSearch'])->name('report.product-wip-main.search');
+        });
+    });
+
+    Route::group(['prefix' => 'product-bb-main'], function () {
+        Route::get('/', [ProductBbMainController::class, 'index'])->name('report.product-bb-main');
+        Route::get('/export', [ProductBbMainController::class, 'export'])->name('report.product-bb-main.export');
+
+        Route::group(['prefix' => 'hx'], function () {
+            Route::get('/search', [ProductBbMainController::class, 'hxSearch'])->name('report.product-bb-main.search');
         });
     });
 
