@@ -43,11 +43,11 @@ Route::group(['prefix' => 'report'], function () {
     });
 
     Route::group(['prefix' => 'product-bb-main'], function () {
-        Route::get('/', [ProductBbMainController::class, 'index'])->name('report.product-bb-main');
+        Route::get('/{type}', [ProductBbMainController::class, 'index'])->name('report.product-bb-main');
         Route::get('/export', [ProductBbMainController::class, 'export'])->name('report.product-bb-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('/search', [ProductBbMainController::class, 'hxSearch'])->name('report.product-bb-main.search');
+            Route::get('{type}/search', [ProductBbMainController::class, 'hxSearch'])->name('report.product-bb-main.search');
         });
     });
 

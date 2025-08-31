@@ -16,7 +16,7 @@
 @if ($products->hasMorePages())
     {{-- infinite scroll --}}
     <tr hx-get="{{ $products->nextPageUrl() }}" hx-trigger="intersect once" hx-swap="outerHTML">
-        <td colspan="11" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+        <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
             @include('components.loading-spinner');
         </td>
     </tr>

@@ -200,7 +200,7 @@
                             <input id="keyword" type="text"
                                 class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75 dark:border-neutral-700 dark:bg-neutral-900/50 dark:focus-visible:outline-white"
                                 name="keyword" placeholder="search" x-model="search" />
-                            <button hx-get="{{ route('report.product-bb-main.search') }}"
+                            <button hx-get="{{ route('report.product-bb-main.search', ['type' => $type]) }}"
                                 hx-include="#fromDate-data, #toDate-data, #keyword"
                                 class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
                                 Search
@@ -240,8 +240,9 @@
                 </thead>
 
                 <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.product-bb-main.search') }}" hx-trigger="load" hx-swap="outerHTML">
-                        <td colspan="11" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+                    <tr hx-get="{{ route('report.product-bb-main.search', ['type' => $type]) }}" hx-trigger="load"
+                        hx-swap="outerHTML">
+                        <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');
                         </td>
                     </tr>

@@ -11,9 +11,24 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductBbMainController extends Controller
 {
-    public function index()
+    public function index(string $type)
     {
-        return view('Report.product-bb-main');
+
+        switch ($type) {
+            case 'BB':
+                $type = 'BAHAN_BAKU';
+                break;
+            case 'BP':
+                $type = 'BAHAN_PENOLONG';
+                break;
+            case 'BJ':
+                $type = 'BAHAN_JADI';
+                break;
+            default:
+                abort(404, 'Invalid product type');
+        }
+
+        return view('Report.product-bb-main', compact('type'));
     }
 
     public function export()
@@ -22,86 +37,104 @@ class ProductBbMainController extends Controller
     }
 
 
-    public function hxSearch(Request $request)
+    public function hxSearch(Request $request, string $type)
     {
+        // 1. VALIDATION
         $validator = Validator::make($request->all(), [
             'fromDate' => 'nullable|date_format:Y-m-d',
             'toDate' => 'nullable|date_format:Y-m-d|after_or_equal:fromDate',
             'keyword' => 'nullable|string|max:255',
             'warehouseId' => 'nullable|string|max:50',
+            // 'productType' is from the URL, so no need to validate it from request input
         ]);
-
-
-        $fromDate = $request->input('fromDate', Carbon::now()->startOfMonth()->toDateString());
-        $toDate = $request->input('toDate', Carbon::now()->endOfMonth()->toDateString());
-        $warehouseId = $request->input('warehouseId', 'WH');
-
-        $cacheKey = "product_bb_main_{$fromDate}_{$toDate}_{$warehouseId}_" . md5($request->input('keyword', ''));
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $validated = $validator->validated();
+
+        // 2. SET DEFAULTS & GET INPUTS
+        // Use the validated data, falling back to defaults if not present.
+        $fromDate = $validated['fromDate'] ?? Carbon::now()->startOfMonth()->toDateString();
+        $toDate = $validated['toDate'] ?? Carbon::now()->endOfMonth()->toDateString();
+        $warehouseId = $validated['warehouseId'] ?? 'WH';
+        $productType = $type ?: 'BAHAN_BAKU'; // Use URL type, with a fallback
         $keyword = $validated['keyword'] ?? null;
         $searchTerm = '%' . $keyword . '%';
 
-        // 2. Build the SINGLE, efficient query starting from the Product model
-        $products = ProductV::query()
-            ->select([
-                'product_v.productId',
-                'product_v.productName',
-                'product_v.unitId',
-            ])
-            // Use selectRaw to perform calculations securely with parameter binding
-            ->selectRaw("
-               ROUND(COALESCE(SUM(CASE 
-                    WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked') 
-                    THEN trans.originalQty 
-                    ELSE 0 
-                END), 0), 4) as saldoAwal
-            ", [$fromDate])
-            ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
-            ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
-            ->selectRaw("ROUND(COALESCE(SUM(sto.adjustedQty), 0), 4) as stockOphname")
+        // 3. CACHE KEY (IMPROVED LOGIC)
+        // The cache key should be consistent for the same query, but unique per page.
+        // We include all filters and the current cursor to make it unique.
+        $cursor = $request->input('cursor', 'first_page');
+        $cacheKey = "product_bb_main_{$fromDate}_{$toDate}_{$warehouseId}_{$productType}_" . md5($keyword ?? '') . "_{$cursor}";
 
-            // LEFT JOIN to include products even if they have no transactions
-            ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
-                $join->on('product_v.productId', '=', 'trans.productId')
-                    ->where('trans.warehouseCode', '=', $warehouseId);
-            })
 
-            // LEFT JOIN for stock opname data, with multiple conditions
-            ->leftJoin('stockoph_v as sto', function ($join) use ($warehouseId, $fromDate, $toDate) {
-                $join->on('product_v.productId', '=', 'sto.productId')
-                    ->where('sto.warehouseId', '=', $warehouseId)
-                    ->where('sto.posted', '=', 1)
-                    ->whereBetween('sto.transDate', [$fromDate, $toDate]);
-            })
+        // 4. QUERY EXECUTION & PAGINATION (WRAPPED IN CACHE)
+        $products = Cache::remember($cacheKey, 300, function () use ($request, $validated, $fromDate, $toDate, $warehouseId, $productType, $keyword, $searchTerm) {
 
-            // Filter products and transactions
-            ->where('product_v.productType', 'BAHAN_BAKU')
+            // Build the SINGLE, efficient query starting from the Product model
+            $query = ProductV::query()
+                ->select([
+                    'product_v.productId',
+                    'product_v.productName',
+                    'product_v.unitId',
+                ])
+                // Use selectRaw to perform calculations securely with parameter binding
+                ->selectRaw("
+                   ROUND(COALESCE(SUM(CASE 
+                        WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked') 
+                        THEN trans.originalQty 
+                        ELSE 0 
+                    END), 0), 4) as saldoAwal
+                ", [$fromDate])
+                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
+                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
+                ->selectRaw("ROUND(COALESCE(SUM(sto.adjustedQty), 0), 4) as stockOphname")
 
-            // Apply keyword search if provided
-            ->when($keyword, function ($query) use ($searchTerm) {
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('product_v.productId', 'like', $searchTerm)
-                        ->orWhere('product_v.productName', 'like', $searchTerm)
-                        ->orWhere('product_v.unitId', 'like', $searchTerm);
-                });
-            })
+                // LEFT JOIN to include products even if they have no transactions
+                ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
+                    $join->on('product_v.productId', '=', 'trans.productId')
+                        ->where('trans.warehouseCode', '=', $warehouseId);
+                })
 
-            // Group by the product fields to make SUM() work correctly
-            ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId');
+                // LEFT JOIN for stock opname data, with multiple conditions
+                ->leftJoin('stockoph_v as sto', function ($join) use ($warehouseId, $fromDate, $toDate) {
+                    $join->on('product_v.productId', '=', 'sto.productId')
+                        ->where('sto.warehouseId', '=', $warehouseId)
+                        ->where('sto.posted', '=', 1)
+                        ->whereBetween('sto.transDate', [$fromDate, $toDate]);
+                })
+
+                // Filter products and transactions
+                ->where('product_v.productType', $productType)
+
+                // Apply keyword search if provided
+                ->when($keyword, function ($query) use ($searchTerm) {
+                    $query->where(function ($q) use ($searchTerm) {
+                        $q->where('product_v.productId', 'like', $searchTerm)
+                            ->orWhere('product_v.productName', 'like', $searchTerm)
+                            ->orWhere('product_v.unitId', 'like', $searchTerm);
+                    });
+                })
+
+                ->orderBy('product_v.productId', 'asc')
+
+                // Group by the product fields to make SUM() work correctly
+                ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId');
 
             // Paginate the final results
-           
-            $products = Cache::remember($cacheKey, 300, function () use ($products) {
-                return $products->cursorPaginate(400);
-            });
+            $paginatedProducts = $query->cursorPaginate(400);
 
-        // return response()->json($products);
+            // ** THE FIX **
+            // Append the validated filter values to the pagination links.
+            // This ensures that when you click "next", the filters are included in the URL.
+            $paginatedProducts->appends($validated);
 
+            return $paginatedProducts;
+        });
+
+        // 5. RENDER VIEW
         return view('Response.Report.ProductBbMain.search', compact('products'));
     }
 }
