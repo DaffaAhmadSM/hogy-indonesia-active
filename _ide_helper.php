@@ -5177,7 +5177,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function lock($name, $seconds = 0, $owner = null)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->lock($name, $seconds, $owner);
         }
 
@@ -5191,21 +5191,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function restoreLock($name, $owner)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->restoreLock($name, $owner);
-        }
-
-        /**
-         * Remove an item from the cache if it is expired.
-         *
-         * @param string $key
-         * @return bool
-         * @static
-         */
-        public static function forgetIfExpired($key)
-        {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->forgetIfExpired($key);
         }
 
         /**
@@ -5216,58 +5203,71 @@ namespace Illuminate\Support\Facades {
          */
         public static function flush()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->flush();
         }
 
         /**
-         * Get the underlying database connection.
+         * Get the full path for the given cache key.
          *
-         * @return \Illuminate\Database\MariaDbConnection
+         * @param string $key
+         * @return string
          * @static
          */
-        public static function getConnection()
+        public static function path($key)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->getConnection();
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->path($key);
         }
 
         /**
-         * Set the underlying database connection.
+         * Get the Filesystem instance.
          *
-         * @param \Illuminate\Database\ConnectionInterface $connection
-         * @return \Illuminate\Cache\DatabaseStore
+         * @return \Illuminate\Filesystem\Filesystem
          * @static
          */
-        public static function setConnection($connection)
+        public static function getFilesystem()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->setConnection($connection);
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->getFilesystem();
         }
 
         /**
-         * Get the connection used to manage locks.
+         * Get the working directory of the cache.
          *
-         * @return \Illuminate\Database\MariaDbConnection
+         * @return string
          * @static
          */
-        public static function getLockConnection()
+        public static function getDirectory()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->getLockConnection();
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->getDirectory();
         }
 
         /**
-         * Specify the connection that should be used to manage locks.
+         * Set the working directory of the cache.
          *
-         * @param \Illuminate\Database\ConnectionInterface $connection
-         * @return \Illuminate\Cache\DatabaseStore
+         * @param string $directory
+         * @return \Illuminate\Cache\FileStore
          * @static
          */
-        public static function setLockConnection($connection)
+        public static function setDirectory($directory)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->setLockConnection($connection);
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->setDirectory($directory);
+        }
+
+        /**
+         * Set the cache directory where locks should be stored.
+         *
+         * @param string|null $lockDirectory
+         * @return \Illuminate\Cache\FileStore
+         * @static
+         */
+        public static function setLockDirectory($lockDirectory)
+        {
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->setLockDirectory($lockDirectory);
         }
 
         /**
@@ -5278,21 +5278,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function getPrefix()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->getPrefix();
-        }
-
-        /**
-         * Set the cache key prefix.
-         *
-         * @param string $prefix
-         * @return void
-         * @static
-         */
-        public static function setPrefix($prefix)
-        {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            $instance->setPrefix($prefix);
         }
 
             }
@@ -22924,6 +22911,438 @@ namespace Illuminate\Support\Facades {
             }
     }
 
+namespace Maatwebsite\Excel\Facades {
+    /**
+     */
+    class Excel {
+        /**
+         * @param object $export
+         * @param string|null $fileName
+         * @param string $writerType
+         * @param array $headers
+         * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+         * @throws \PhpOffice\PhpSpreadsheet\Exception
+         * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+         * @static
+         */
+        public static function download($export, $fileName, $writerType = null, $headers = [])
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->download($export, $fileName, $writerType, $headers);
+        }
+
+        /**
+         * @param string|null $disk Fallback for usage with named properties
+         * @param object $export
+         * @param string $filePath
+         * @param string|null $diskName
+         * @param string $writerType
+         * @param mixed $diskOptions
+         * @return bool
+         * @throws \PhpOffice\PhpSpreadsheet\Exception
+         * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+         * @static
+         */
+        public static function store($export, $filePath, $diskName = null, $writerType = null, $diskOptions = [], $disk = null)
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->store($export, $filePath, $diskName, $writerType, $diskOptions, $disk);
+        }
+
+        /**
+         * @param object $export
+         * @param string $filePath
+         * @param string|null $disk
+         * @param string $writerType
+         * @param mixed $diskOptions
+         * @return \Illuminate\Foundation\Bus\PendingDispatch
+         * @static
+         */
+        public static function queue($export, $filePath, $disk = null, $writerType = null, $diskOptions = [])
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->queue($export, $filePath, $disk, $writerType, $diskOptions);
+        }
+
+        /**
+         * @param object $export
+         * @param string $writerType
+         * @return string
+         * @static
+         */
+        public static function raw($export, $writerType)
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->raw($export, $writerType);
+        }
+
+        /**
+         * @param object $import
+         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
+         * @param string|null $disk
+         * @param string|null $readerType
+         * @return \Maatwebsite\Excel\Reader|\Illuminate\Foundation\Bus\PendingDispatch
+         * @static
+         */
+        public static function import($import, $filePath, $disk = null, $readerType = null)
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->import($import, $filePath, $disk, $readerType);
+        }
+
+        /**
+         * @param object $import
+         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
+         * @param string|null $disk
+         * @param string|null $readerType
+         * @return array
+         * @static
+         */
+        public static function toArray($import, $filePath, $disk = null, $readerType = null)
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->toArray($import, $filePath, $disk, $readerType);
+        }
+
+        /**
+         * @param object $import
+         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
+         * @param string|null $disk
+         * @param string|null $readerType
+         * @return \Illuminate\Support\Collection
+         * @static
+         */
+        public static function toCollection($import, $filePath, $disk = null, $readerType = null)
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->toCollection($import, $filePath, $disk, $readerType);
+        }
+
+        /**
+         * @param \Illuminate\Contracts\Queue\ShouldQueue $import
+         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
+         * @param string|null $disk
+         * @param string $readerType
+         * @return \Illuminate\Foundation\Bus\PendingDispatch
+         * @static
+         */
+        public static function queueImport($import, $filePath, $disk = null, $readerType = null)
+        {
+            /** @var \Maatwebsite\Excel\Excel $instance */
+            return $instance->queueImport($import, $filePath, $disk, $readerType);
+        }
+
+        /**
+         * Register a custom macro.
+         *
+         * @param string $name
+         * @param object|callable $macro
+         * @param-closure-this static  $macro
+         * @return void
+         * @static
+         */
+        public static function macro($name, $macro)
+        {
+            \Maatwebsite\Excel\Excel::macro($name, $macro);
+        }
+
+        /**
+         * Mix another object into the class.
+         *
+         * @param object $mixin
+         * @param bool $replace
+         * @return void
+         * @throws \ReflectionException
+         * @static
+         */
+        public static function mixin($mixin, $replace = true)
+        {
+            \Maatwebsite\Excel\Excel::mixin($mixin, $replace);
+        }
+
+        /**
+         * Checks if macro is registered.
+         *
+         * @param string $name
+         * @return bool
+         * @static
+         */
+        public static function hasMacro($name)
+        {
+            return \Maatwebsite\Excel\Excel::hasMacro($name);
+        }
+
+        /**
+         * Flush the existing macros.
+         *
+         * @return void
+         * @static
+         */
+        public static function flushMacros()
+        {
+            \Maatwebsite\Excel\Excel::flushMacros();
+        }
+
+        /**
+         * @param string $concern
+         * @param callable $handler
+         * @param string $event
+         * @static
+         */
+        public static function extend($concern, $handler, $event = 'Maatwebsite\\Excel\\Events\\BeforeWriting')
+        {
+            return \Maatwebsite\Excel\Excel::extend($concern, $handler, $event);
+        }
+
+        /**
+         * When asserting downloaded, stored, queued or imported, use regular expression
+         * to look for a matching file path.
+         *
+         * @return void
+         * @static
+         */
+        public static function matchByRegex()
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            $instance->matchByRegex();
+        }
+
+        /**
+         * When asserting downloaded, stored, queued or imported, use regular string
+         * comparison for matching file path.
+         *
+         * @return void
+         * @static
+         */
+        public static function doNotMatchByRegex()
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            $instance->doNotMatchByRegex();
+        }
+
+        /**
+         * @param string $fileName
+         * @param callable|null $callback
+         * @static
+         */
+        public static function assertDownloaded($fileName, $callback = null)
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            return $instance->assertDownloaded($fileName, $callback);
+        }
+
+        /**
+         * @param string $filePath
+         * @param string|callable|null $disk
+         * @param callable|null $callback
+         * @static
+         */
+        public static function assertStored($filePath, $disk = null, $callback = null)
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            return $instance->assertStored($filePath, $disk, $callback);
+        }
+
+        /**
+         * @param string $filePath
+         * @param string|callable|null $disk
+         * @param callable|null $callback
+         * @static
+         */
+        public static function assertQueued($filePath, $disk = null, $callback = null)
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            return $instance->assertQueued($filePath, $disk, $callback);
+        }
+
+        /**
+         * @static
+         */
+        public static function assertQueuedWithChain($chain)
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            return $instance->assertQueuedWithChain($chain);
+        }
+
+        /**
+         * @param string $classname
+         * @param callable|null $callback
+         * @static
+         */
+        public static function assertExportedInRaw($classname, $callback = null)
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            return $instance->assertExportedInRaw($classname, $callback);
+        }
+
+        /**
+         * @param string $filePath
+         * @param string|callable|null $disk
+         * @param callable|null $callback
+         * @static
+         */
+        public static function assertImported($filePath, $disk = null, $callback = null)
+        {
+            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
+            return $instance->assertImported($filePath, $disk, $callback);
+        }
+
+            }
+    }
+
+namespace Laravel\Octane\Facades {
+    /**
+     * @see \Laravel\Octane\Octane
+     */
+    class Octane {
+        /**
+         * Get a Swoole table instance.
+         *
+         * @static
+         */
+        public static function table($table)
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->table($table);
+        }
+
+        /**
+         * Format an exception to a string that should be returned to the client.
+         *
+         * @static
+         */
+        public static function formatExceptionForClient($e, $debug = false)
+        {
+            return \Laravel\Octane\Octane::formatExceptionForClient($e, $debug);
+        }
+
+        /**
+         * Write an error message to STDERR or to the SAPI logger if not in CLI mode.
+         *
+         * @static
+         */
+        public static function writeError($message)
+        {
+            return \Laravel\Octane\Octane::writeError($message);
+        }
+
+        /**
+         * Concurrently resolve the given callbacks via background tasks, returning the results.
+         * 
+         * Results will be keyed by their given keys - if a task did not finish, the tasks value will be "false".
+         *
+         * @return array
+         * @throws \Laravel\Octane\Exceptions\TaskException
+         * @throws \Laravel\Octane\Exceptions\TaskTimeoutException
+         * @static
+         */
+        public static function concurrently($tasks, $waitMilliseconds = 3000)
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->concurrently($tasks, $waitMilliseconds);
+        }
+
+        /**
+         * Get the task dispatcher.
+         *
+         * @return \Laravel\Octane\Contracts\DispatchesTasks
+         * @static
+         */
+        public static function tasks()
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->tasks();
+        }
+
+        /**
+         * Get the listeners that will prepare the Laravel application for a new request.
+         *
+         * @static
+         */
+        public static function prepareApplicationForNextRequest()
+        {
+            return \Laravel\Octane\Octane::prepareApplicationForNextRequest();
+        }
+
+        /**
+         * Get the listeners that will prepare the Laravel application for a new operation.
+         *
+         * @static
+         */
+        public static function prepareApplicationForNextOperation()
+        {
+            return \Laravel\Octane\Octane::prepareApplicationForNextOperation();
+        }
+
+        /**
+         * Get the container bindings / services that should be pre-resolved by default.
+         *
+         * @static
+         */
+        public static function defaultServicesToWarm()
+        {
+            return \Laravel\Octane\Octane::defaultServicesToWarm();
+        }
+
+        /**
+         * Register a Octane route.
+         *
+         * @static
+         */
+        public static function route($method, $uri, $callback)
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->route($method, $uri, $callback);
+        }
+
+        /**
+         * Determine if a route exists for the given method and URI.
+         *
+         * @static
+         */
+        public static function hasRouteFor($method, $uri)
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->hasRouteFor($method, $uri);
+        }
+
+        /**
+         * Invoke the route for the given method and URI.
+         *
+         * @static
+         */
+        public static function invokeRoute($request, $method, $uri)
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->invokeRoute($request, $method, $uri);
+        }
+
+        /**
+         * Get the registered Octane routes.
+         *
+         * @static
+         */
+        public static function getRoutes()
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->getRoutes();
+        }
+
+        /**
+         * Register a callback to be called every N seconds.
+         *
+         * @return \Laravel\Octane\Swoole\InvokeTickCallable
+         * @static
+         */
+        public static function tick($key, $callback, $seconds = 1, $immediate = true)
+        {
+            /** @var \Laravel\Octane\Octane $instance */
+            return $instance->tick($key, $callback, $seconds, $immediate);
+        }
+
+            }
+    }
+
 namespace Flux {
     /**
      * @see \Flux\FluxManager
@@ -23560,285 +23979,6 @@ namespace Livewire {
         public static function modal($name)
         {
             return \Livewire\Component::modal($name);
-        }
-
-            }
-    }
-
-namespace Maatwebsite\Excel\Facades {
-    /**
-     */
-    class Excel {
-        /**
-         * @param object $export
-         * @param string|null $fileName
-         * @param string $writerType
-         * @param array $headers
-         * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-         * @throws \PhpOffice\PhpSpreadsheet\Exception
-         * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-         * @static
-         */
-        public static function download($export, $fileName, $writerType = null, $headers = [])
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->download($export, $fileName, $writerType, $headers);
-        }
-
-        /**
-         * @param string|null $disk Fallback for usage with named properties
-         * @param object $export
-         * @param string $filePath
-         * @param string|null $diskName
-         * @param string $writerType
-         * @param mixed $diskOptions
-         * @return bool
-         * @throws \PhpOffice\PhpSpreadsheet\Exception
-         * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-         * @static
-         */
-        public static function store($export, $filePath, $diskName = null, $writerType = null, $diskOptions = [], $disk = null)
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->store($export, $filePath, $diskName, $writerType, $diskOptions, $disk);
-        }
-
-        /**
-         * @param object $export
-         * @param string $filePath
-         * @param string|null $disk
-         * @param string $writerType
-         * @param mixed $diskOptions
-         * @return \Illuminate\Foundation\Bus\PendingDispatch
-         * @static
-         */
-        public static function queue($export, $filePath, $disk = null, $writerType = null, $diskOptions = [])
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->queue($export, $filePath, $disk, $writerType, $diskOptions);
-        }
-
-        /**
-         * @param object $export
-         * @param string $writerType
-         * @return string
-         * @static
-         */
-        public static function raw($export, $writerType)
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->raw($export, $writerType);
-        }
-
-        /**
-         * @param object $import
-         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
-         * @param string|null $disk
-         * @param string|null $readerType
-         * @return \Maatwebsite\Excel\Reader|\Illuminate\Foundation\Bus\PendingDispatch
-         * @static
-         */
-        public static function import($import, $filePath, $disk = null, $readerType = null)
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->import($import, $filePath, $disk, $readerType);
-        }
-
-        /**
-         * @param object $import
-         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
-         * @param string|null $disk
-         * @param string|null $readerType
-         * @return array
-         * @static
-         */
-        public static function toArray($import, $filePath, $disk = null, $readerType = null)
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->toArray($import, $filePath, $disk, $readerType);
-        }
-
-        /**
-         * @param object $import
-         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
-         * @param string|null $disk
-         * @param string|null $readerType
-         * @return \Illuminate\Support\Collection
-         * @static
-         */
-        public static function toCollection($import, $filePath, $disk = null, $readerType = null)
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->toCollection($import, $filePath, $disk, $readerType);
-        }
-
-        /**
-         * @param \Illuminate\Contracts\Queue\ShouldQueue $import
-         * @param string|\Symfony\Component\HttpFoundation\File\UploadedFile $filePath
-         * @param string|null $disk
-         * @param string $readerType
-         * @return \Illuminate\Foundation\Bus\PendingDispatch
-         * @static
-         */
-        public static function queueImport($import, $filePath, $disk = null, $readerType = null)
-        {
-            /** @var \Maatwebsite\Excel\Excel $instance */
-            return $instance->queueImport($import, $filePath, $disk, $readerType);
-        }
-
-        /**
-         * Register a custom macro.
-         *
-         * @param string $name
-         * @param object|callable $macro
-         * @param-closure-this static  $macro
-         * @return void
-         * @static
-         */
-        public static function macro($name, $macro)
-        {
-            \Maatwebsite\Excel\Excel::macro($name, $macro);
-        }
-
-        /**
-         * Mix another object into the class.
-         *
-         * @param object $mixin
-         * @param bool $replace
-         * @return void
-         * @throws \ReflectionException
-         * @static
-         */
-        public static function mixin($mixin, $replace = true)
-        {
-            \Maatwebsite\Excel\Excel::mixin($mixin, $replace);
-        }
-
-        /**
-         * Checks if macro is registered.
-         *
-         * @param string $name
-         * @return bool
-         * @static
-         */
-        public static function hasMacro($name)
-        {
-            return \Maatwebsite\Excel\Excel::hasMacro($name);
-        }
-
-        /**
-         * Flush the existing macros.
-         *
-         * @return void
-         * @static
-         */
-        public static function flushMacros()
-        {
-            \Maatwebsite\Excel\Excel::flushMacros();
-        }
-
-        /**
-         * @param string $concern
-         * @param callable $handler
-         * @param string $event
-         * @static
-         */
-        public static function extend($concern, $handler, $event = 'Maatwebsite\\Excel\\Events\\BeforeWriting')
-        {
-            return \Maatwebsite\Excel\Excel::extend($concern, $handler, $event);
-        }
-
-        /**
-         * When asserting downloaded, stored, queued or imported, use regular expression
-         * to look for a matching file path.
-         *
-         * @return void
-         * @static
-         */
-        public static function matchByRegex()
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            $instance->matchByRegex();
-        }
-
-        /**
-         * When asserting downloaded, stored, queued or imported, use regular string
-         * comparison for matching file path.
-         *
-         * @return void
-         * @static
-         */
-        public static function doNotMatchByRegex()
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            $instance->doNotMatchByRegex();
-        }
-
-        /**
-         * @param string $fileName
-         * @param callable|null $callback
-         * @static
-         */
-        public static function assertDownloaded($fileName, $callback = null)
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            return $instance->assertDownloaded($fileName, $callback);
-        }
-
-        /**
-         * @param string $filePath
-         * @param string|callable|null $disk
-         * @param callable|null $callback
-         * @static
-         */
-        public static function assertStored($filePath, $disk = null, $callback = null)
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            return $instance->assertStored($filePath, $disk, $callback);
-        }
-
-        /**
-         * @param string $filePath
-         * @param string|callable|null $disk
-         * @param callable|null $callback
-         * @static
-         */
-        public static function assertQueued($filePath, $disk = null, $callback = null)
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            return $instance->assertQueued($filePath, $disk, $callback);
-        }
-
-        /**
-         * @static
-         */
-        public static function assertQueuedWithChain($chain)
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            return $instance->assertQueuedWithChain($chain);
-        }
-
-        /**
-         * @param string $classname
-         * @param callable|null $callback
-         * @static
-         */
-        public static function assertExportedInRaw($classname, $callback = null)
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            return $instance->assertExportedInRaw($classname, $callback);
-        }
-
-        /**
-         * @param string $filePath
-         * @param string|callable|null $disk
-         * @param callable|null $callback
-         * @static
-         */
-        public static function assertImported($filePath, $disk = null, $callback = null)
-        {
-            /** @var \Maatwebsite\Excel\Fakes\ExcelFake $instance */
-            return $instance->assertImported($filePath, $disk, $callback);
         }
 
             }
@@ -29067,9 +29207,10 @@ namespace  {
     class Validator extends \Illuminate\Support\Facades\Validator {}
     class View extends \Illuminate\Support\Facades\View {}
     class Vite extends \Illuminate\Support\Facades\Vite {}
+    class Excel extends \Maatwebsite\Excel\Facades\Excel {}
+    class Octane extends \Laravel\Octane\Facades\Octane {}
     class Flux extends \Flux\Flux {}
     class Livewire extends \Livewire\Livewire {}
-    class Excel extends \Maatwebsite\Excel\Facades\Excel {}
 }
 
 
