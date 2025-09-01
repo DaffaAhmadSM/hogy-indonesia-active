@@ -22,7 +22,7 @@ class ProductBbMainController extends Controller
                 $type = 'BAHAN_PENOLONG';
                 break;
             case 'BJ':
-                $type = 'BAHAN_JADI';
+                $type = 'BARANG_JADI';
                 break;
             default:
                 abort(404, 'Invalid product type');

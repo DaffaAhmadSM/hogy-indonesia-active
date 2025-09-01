@@ -54,20 +54,51 @@
                 <!-- Panel -->
                 <div x-ref="panel" x-show="open" x-transition.origin.top.left x-on:click.outside="close($refs.button)"
                   :id="$id('dropdown-button')" x-cloak
-                  class="absolute left-0 min-w-48 rounded-lg shadow-sm mt-2 z-10 origin-top-left bg-white p-1.5 outline-none border border-gray-200">
-                  <a href="#new"
-                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    New Task
+                  class="absolute left-0 min-w-96 rounded-lg shadow-sm mt-2 z-10 origin-top-left bg-white p-1.5 outline-none border border-gray-200">
+                  <a href="{{ route('report.invent-in-main') }}"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pemasukan Barang Per Dokumen Pabean
                   </a>
 
-                  <a href="#edit"
-                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Edit Task
+                  <a href="{{ route('report.invent-out-main') }}"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pengeluaran Barang Per Dokumen Pabean
+                  </a>
+
+                  <a href="{{ route('report.product-wip-main') }}"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Posisi WIP
+                  </a>
+
+                  <a href="{{ route('report.product-bb-main', ["type" => "BB"]) }}"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pertanggungjawaban Mutasi Bahan baku
+                  </a>
+
+                  <a href="{{ route('report.product-bb-main', ["type" => "BP"]) }}"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pertanggungjawaban Mutasi Bahan Penolong
+                  </a>
+
+                  <a href="{{ route('report.product-bb-main', ["type" => "BJ"]) }}"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pertanggungjawaban Mutasi
+                    Bahan Jadi
                   </a>
 
                   <a href="#delete"
-                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Delete Task
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pertanggungjawaban Mutasi
+                    Mesin dan Peralatan
+                  </a>
+                  <a href="#delete"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pertanggungjawaban Mutasi
+                    Barang Reject
+                  </a>
+                  <a href="#delete"
+                    class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
+                    Laporan Pertanggungjawaban Scrap
                   </a>
                 </div>
               </div>
