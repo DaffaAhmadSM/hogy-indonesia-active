@@ -140,6 +140,9 @@ class InventInMainController extends Controller
             ->orderBy("ItemId")
             ->where('isCancel', 0);
 
+        $fromDate = $request->input('fromDate') ?? Carbon::now()->startOfMonth();
+        $toDate = $request->input('toDate') ?? Carbon::now()->endOfMonth();
+
         $keyword = $request->input('keyword');
 
         if ($request->input('fromDate') != null) {
@@ -152,9 +155,9 @@ class InventInMainController extends Controller
                 $toDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->endOfDay();
             }
 
-            $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
-
         }
+
+        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
