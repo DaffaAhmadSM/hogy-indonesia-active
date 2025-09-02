@@ -14,21 +14,25 @@ class ProductBbMainController extends Controller
     public function index(string $type)
     {
 
+        $title = 'Laporan PertanggungJawaban Mutasi ';
         switch ($type) {
             case 'BB':
                 $type = 'BAHAN_BAKU';
+                $title .= 'Bahan Baku';
                 break;
             case 'BP':
                 $type = 'BAHAN_PENOLONG';
+                $title .= 'Bahan Penolong';
                 break;
             case 'BJ':
                 $type = 'BARANG_JADI';
+                $title .= 'Barang Jadi';
                 break;
             default:
                 abort(404, 'Invalid product type');
         }
 
-        return view('Report.product-bb-main', compact('type'));
+        return view('Report.product-bb-main', compact('type', 'title'));
     }
 
     public function export()

@@ -18,7 +18,7 @@
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
                     <div class="container mx-auto px-4 py-2 md:py-10">
                         <div class="mb-5 w-64">
-                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">from Date</label>
+                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">From date</label>
                             <div class="relative">
                                 <input type="hidden" name="fromDate" x-ref="date" id="fromDate-data"
                                     value="{{ request('fromDate') }}">
@@ -105,7 +105,7 @@
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
                     <div class="container mx-auto px-4 py-2 md:py-10">
                         <div class="mb-5 w-64">
-                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">to Date</label>
+                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">To date</label>
                             <div class="relative">
                                 <input type="hidden" name="toDate" x-ref="date" id="toDate-data"
                                     value="{{ request('toDate') }}">
