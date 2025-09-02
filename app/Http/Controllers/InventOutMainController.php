@@ -104,7 +104,7 @@ class InventOutMainController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'fromDate' => 'date|date_format:Y-m-d',
-            'toDate' => 'date|after_or_equal:fromDate|date_format:Y-m-d',
+            'toDate' => 'nullable|date|after_or_equal:fromDate|date_format:Y-m-d',
             'keyword' => 'nullable|string|max:255',
         ]);
 
@@ -112,26 +112,17 @@ class InventOutMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $prod_receipt = SalespickV::orderBy("registrationDate")
+        $prod_receipt = SalespickV::orderBy("registrationDate", "desc")
             ->orderBy("invoiceId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
 
         $keyword = $request->input('keyword');
 
-        if ($request->input('fromDate') != null) {
 
-            $fromDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay();
-
-            if ($request->input('toDate') != null) {
-                $toDate = Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay();
-            } else {
-                $toDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->endOfDay();
-            }
-
-            $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
-
-        }
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay() : Carbon::now()->startOfMonth();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay() : Carbon::now()->endOfMonth();
+        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
@@ -168,7 +159,7 @@ class InventOutMainController extends Controller
                 'amount',
                 'notes',
                 'PickCode'
-            ]);
+            ])->withQueryString();
 
         return view('Response.Report.InventOutMain.search', compact('prod_receipt'));
     }

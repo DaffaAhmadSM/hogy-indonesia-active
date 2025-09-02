@@ -27,31 +27,8 @@ class InventInMainController extends Controller
         $fromDate = Carbon::now()->startOfMonth();
         $toDate = Carbon::now()->endOfMonth();
 
-        $prod_receipt = ProdreceiptV::orderBy("registrationDate")->orderBy("purchRecId")->orderBy("ItemId")
-            ->where('isCancel', 0)
-            ->cursorPaginate(50, [
-                'purchRecId',
-                'transDate',
-                'requestNo',
-                'docBc',
-                'registrationNo',
-                'registrationDate',
-                'invNoVend',
-                'invDateVend',
-                'VendName',
-                'ItemId',
-                'ItemName',
-                'unit',
-                'qty',
-                'currencyCode',
-                'price',
-                'amount',
-                'notes',
-                'PackCode'
-            ]);
 
-
-        return view('Report.invent-in-main', compact('prod_receipt'));
+        return view('Report.invent-in-main');
     }
 
     /**
@@ -127,37 +104,25 @@ class InventInMainController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'fromDate' => 'date|date_format:Y-m-d',
-            'toDate' => 'date|after_or_equal:fromDate|date_format:Y-m-d',
+            'toDate' => 'nullable|date|after_or_equal:fromDate|date_format:Y-m-d',
             'keyword' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()->first()], 422);
         }
 
-        $prod_receipt = ProdreceiptV::orderBy("registrationDate")
+        $prod_receipt = ProdreceiptV::orderBy("invDateVend", "desc")
             ->orderBy("purchRecId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
 
-        $fromDate = $request->input('fromDate') ?? Carbon::now()->startOfMonth();
-        $toDate = $request->input('toDate') ?? Carbon::now()->endOfMonth();
-
         $keyword = $request->input('keyword');
 
-        if ($request->input('fromDate') != null) {
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay() : Carbon::now()->startOfMonth();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay() : Carbon::now()->endOfMonth();
+        $prod_receipt = $prod_receipt->whereBetween('invDateVend', [$fromDate, $toDate]);
 
-            $fromDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay();
-
-            if ($request->input('toDate') != null) {
-                $toDate = Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay();
-            } else {
-                $toDate = Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->endOfDay();
-            }
-
-        }
-
-        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
@@ -191,7 +156,7 @@ class InventInMainController extends Controller
                 'amount',
                 'notes',
                 'PackCode'
-            ]);
+            ])->withQueryString();
 
         return view('Response.Report.InventInMain.search', compact('prod_receipt'));
     }
