@@ -94,8 +94,8 @@ class ProductWipMainController extends Controller
                 'Po_Picked',
                 'So_Picked'
             ])
+            ->orderBy('transDate', 'desc')
             ->orderBy('productId')
-            ->orderBy('productName')
             ->orderBy('unitId');
 
         $fromDate = Carbon::createFromFormat('Y-m-d', "1990-01-01")->startOfDay();
@@ -143,7 +143,7 @@ class ProductWipMainController extends Controller
                     'unitId',
                     DB::raw('ROUND(SUM(originalQty), 2) as jumlah')
                 )
-                ->cursorPaginate(300);
+                ->cursorPaginate(300)->withQueryString();
         });
 
         return view('Response.Report.ProductWipMain.search', compact('prod_tr'));
