@@ -8,7 +8,7 @@ fi
 
 docker compose build
 
-docker run --rm -it --volume $(pwd):/app dbi composer install --no-dev --optimize-autoloader
+docker run --rm -it --volume $(pwd):/app dbi composer install --optimize-autoloader
 docker run --rm -it --volume $(pwd):/app dbi php artisan key:generate
 
 docker run --rm -it --volume $(pwd):/app dbi php artisan octane:install --server=frankenphp
