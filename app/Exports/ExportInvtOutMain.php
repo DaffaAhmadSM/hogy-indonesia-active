@@ -75,7 +75,7 @@ class ExportInvtOutMain implements FromView
                 'PickCode'
             ]);
 
-        return view('Export.excel.invent-out-main', [
+        return view('Export.excel.Invent-out-main', [
             'prod_receipt' => $prod_receipt
         ]);
     }
