@@ -2,16 +2,14 @@
 
 namespace App\Exports;
 
-use App\Models\ProdreceiptV;
+use App\Models\SalespickV;
 use Illuminate\Support\Carbon;
-use Maatwebsite\Excel\Concerns\Exportable;
-use function Livewire\Volt\protect;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class ExportEnvtInMain implements FromView
+class ExportInvtOutMain implements FromView
 {
-
     use Exportable;
 
     protected $fromDate;
@@ -26,41 +24,31 @@ class ExportEnvtInMain implements FromView
         $this->toDate = $toDate;
         $this->keywords = $keywords;
     }
-
-    /**
-     * @return \Illuminate\Support\Collection
-     */
     public function view(): \Illuminate\Contracts\View\View
     {
-
-        $prod_receipt = ProdreceiptV::orderBy("registrationDate")
-            ->orderBy("purchRecId")
+        $prod_receipt = SalespickV::orderBy("registrationDate", "desc")
+            ->orderBy("invoiceId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
 
         $keyword = $this->keywords;
 
-        if ($this->fromDate != null) {
 
-            $fromDate = Carbon::createFromFormat('Y-m-d', $this->fromDate)->startOfDay();
-
-            if ($this->toDate != null) {
-                $toDate = Carbon::createFromFormat('Y-m-d', $this->toDate)->endOfDay();
-            } else {
-                $toDate = Carbon::now()->endOfDay();
-            }
-
-            $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
-
-        }
+        $fromDate = $this->fromDate ? Carbon::createFromFormat('Y-m-d', $this->fromDate)->startOfDay() : Carbon::now()->startOfMonth();
+        $toDate = $this->toDate ? Carbon::createFromFormat('Y-m-d', $this->toDate)->endOfDay() : Carbon::now()->endOfMonth();
+        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
-                    $q->where('purchRecId', 'like', "%$keyword%")
-                        ->orWhere('ItemId', 'like', "%$keyword%")
-                        ->orWhere('ItemName', 'like', "%$keyword%")
-                        ->orWhere('VendName', 'like', "%$keyword%");
+                    $searchTerm = '%' . $keyword . '%';
+                    $q->where('requestNo', 'like', $searchTerm)
+                        ->orWhere('docBc', 'like', $searchTerm)
+                        ->orWhere('registrationNo', 'like', $searchTerm)
+                        ->orWhere('InvoiceId', 'like', $searchTerm)
+                        ->orWhere('CustName', 'like', $searchTerm)
+                        ->orWhere('ItemId', 'like', $searchTerm)
+                        ->orWhere('ItemName', 'like', $searchTerm);
                 });
             });
         }
@@ -68,15 +56,14 @@ class ExportEnvtInMain implements FromView
 
         $prod_receipt = $prod_receipt
             ->get([
-                'purchRecId',
                 'transDate',
                 'requestNo',
                 'docBc',
                 'registrationNo',
                 'registrationDate',
-                'invNoVend',
-                'invDateVend',
-                'VendName',
+                'invoiceId',
+                'invoiceDate',
+                'custName',
                 'ItemId',
                 'ItemName',
                 'unit',
@@ -85,10 +72,10 @@ class ExportEnvtInMain implements FromView
                 'price',
                 'amount',
                 'notes',
-                'PackCode'
+                'PickCode'
             ]);
 
-        return view('Export.excel.InventInMain', [
+         return view('Export.excel.invent-out-main', [
             'prod_receipt' => $prod_receipt
         ]);
     }

@@ -88,7 +88,7 @@ class InventOutMainController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $fromDate = $request->input('fromDate');

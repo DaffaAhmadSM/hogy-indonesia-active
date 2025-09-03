@@ -22,23 +22,26 @@
 							<div class="relative">
 								<input type="hidden" name="fromDate" x-ref="date" id="fromDate-data"
 									value="{{ request('fromDate') }}">
-								<input type="text" readonly x-model="datepickerValue" @click="showDatepicker = !showDatepicker"
-									@keydown.escape="showDatepicker = false"
+								<input type="text" readonly x-model="datepickerValue"
+									@click="showDatepicker = !showDatepicker" @keydown.escape="showDatepicker = false"
 									class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
 									placeholder="Select date">
 
 								<div class="absolute top-0 right-0 px-3 py-2">
-									<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+										stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 									</svg>
 								</div>
 								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
-									style="width: 17rem" x-show.transition="showDatepicker" @click.away="showDatepicker = false">
+									style="width: 17rem" x-show.transition="showDatepicker"
+									@click.away="showDatepicker = false">
 
 									<div class="flex justify-between items-center mb-2">
 										<div>
-											<span x-text="MONTH_NAMES[month]" class="text-lg font-bold text-gray-800"></span>
+											<span x-text="MONTH_NAMES[month]"
+												class="text-lg font-bold text-gray-800"></span>
 											<span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
 										</div>
 										<div>
@@ -46,8 +49,8 @@
 												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
 												:class="{'cursor-not-allowed opacity-25': month == 0 }"
 												:disabled="month == 0 ? true : false" @click="month--; getNoOfDays()">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24"
-													stroke="currentColor">
+												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+													viewBox="0 0 24 24" stroke="currentColor">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 														d="M15 19l-7-7 7-7" />
 												</svg>
@@ -56,8 +59,8 @@
 												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
 												:class="{'cursor-not-allowed opacity-25': month == 11 }"
 												:disabled="month == 11 ? true : false" @click="month++; getNoOfDays()">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24"
-													stroke="currentColor">
+												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+													viewBox="0 0 24 24" stroke="currentColor">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 														d="M9 5l7 7-7 7" />
 												</svg>
@@ -76,7 +79,8 @@
 
 									<div class="flex flex-wrap -mx-1">
 										<template x-for="blankday in blankdays">
-											<div style="width: 14.28%" class="text-center border p-1 border-transparent text-sm">
+											<div style="width: 14.28%"
+												class="text-center border p-1 border-transparent text-sm">
 											</div>
 										</template>
 										<template x-for="(date, dateIndex) in no_of_days" :key="dateIndex">
@@ -103,24 +107,28 @@
 						<div class="mb-5 w-64">
 							<label for="datepicker" class="font-bold mb-1 text-gray-700 block">To date</label>
 							<div class="relative">
-								<input type="hidden" name="toDate" x-ref="date" id="toDate-data" value="{{ request('toDate') }}">
-								<input type="text" readonly x-model="datepickerValue" @click="showDatepicker = !showDatepicker"
-									@keydown.escape="showDatepicker = false"
+								<input type="hidden" name="toDate" x-ref="date" id="toDate-data"
+									value="{{ request('toDate') }}">
+								<input type="text" readonly x-model="datepickerValue"
+									@click="showDatepicker = !showDatepicker" @keydown.escape="showDatepicker = false"
 									class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
 									placeholder="Select date">
 
 								<div class="absolute top-0 right-0 px-3 py-2">
-									<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+										stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 									</svg>
 								</div>
 								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
-									style="width: 17rem" x-show.transition="showDatepicker" @click.away="showDatepicker = false">
+									style="width: 17rem" x-show.transition="showDatepicker"
+									@click.away="showDatepicker = false">
 
 									<div class="flex justify-between items-center mb-2">
 										<div>
-											<span x-text="MONTH_NAMES[month]" class="text-lg font-bold text-gray-800"></span>
+											<span x-text="MONTH_NAMES[month]"
+												class="text-lg font-bold text-gray-800"></span>
 											<span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
 										</div>
 										<div>
@@ -128,8 +136,8 @@
 												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
 												:class="{'cursor-not-allowed opacity-25': month == 0 }"
 												:disabled="month == 0 ? true : false" @click="month--; getNoOfDays()">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24"
-													stroke="currentColor">
+												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+													viewBox="0 0 24 24" stroke="currentColor">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 														d="M15 19l-7-7 7-7" />
 												</svg>
@@ -138,8 +146,8 @@
 												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
 												:class="{'cursor-not-allowed opacity-25': month == 11 }"
 												:disabled="month == 11 ? true : false" @click="month++; getNoOfDays()">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24"
-													stroke="currentColor">
+												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+													viewBox="0 0 24 24" stroke="currentColor">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 														d="M9 5l7 7-7 7" />
 												</svg>
@@ -158,7 +166,8 @@
 
 									<div class="flex flex-wrap -mx-1">
 										<template x-for="blankday in blankdays">
-											<div style="width: 14.28%" class="text-center border p-1 border-transparent text-sm">
+											<div style="width: 14.28%"
+												class="text-center border p-1 border-transparent text-sm">
 											</div>
 										</template>
 										<template x-for="(date, dateIndex) in no_of_days" :key="dateIndex">
@@ -196,6 +205,20 @@
 								class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
 								Search
 							</button>
+
+							<a href="{{ route('report.invent-in-main.export') }}" @click="
+                                 const from = document.getElementById('fromDate-data')?.value || '';
+                                 const to = document.getElementById('toDate-data')?.value || '';
+                                 const kw = document.getElementById('keyword')?.value || '';
+                                 $el.href = '{{ route('report.invent-in-main.export') }}'
+                                   + '?fromDate=' + encodeURIComponent(from)
+                                   + '&toDate=' + encodeURIComponent(to)
+                                   + '&keyword=' + encodeURIComponent(kw);
+                               " download
+                                class=" rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
+                                Export
+                            </a>
+
 						</div>
 					</div>
 
@@ -226,10 +249,10 @@
 
 				<tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
 					<tr hx-get="{{ route('report.invent-in-main.search') }}" hx-trigger="load" hx-swap="outerHTML">
-                        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
-                            @include('components.loading-spinner');
-                        </td>
-                    </tr>
+						<td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+							@include('components.loading-spinner');
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
@@ -309,4 +332,6 @@
 			}
 		}
 	</script>
+
+
 @endsection

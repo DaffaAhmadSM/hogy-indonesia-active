@@ -205,6 +205,19 @@
                                 class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
                                 Search
                             </button>
+
+                            <a href="{{ route('report.invent-out-main.export') }}" @click="
+                                 const from = document.getElementById('fromDate-data')?.value || '';
+                                 const to = document.getElementById('toDate-data')?.value || '';
+                                 const kw = document.getElementById('keyword')?.value || '';
+                                 $el.href = '{{ route('report.invent-out-main.export') }}'
+                                   + '?fromDate=' + encodeURIComponent(from)
+                                   + '&toDate=' + encodeURIComponent(to)
+                                   + '&keyword=' + encodeURIComponent(kw);
+                               " download
+                                class=" rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
+                                Export
+                            </a>
                         </div>
                     </div>
 
