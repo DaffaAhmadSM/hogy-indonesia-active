@@ -91,8 +91,8 @@ class InventInMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay() : Carbon::now();
-        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay() : Carbon::now();
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
         $keywords = $request->input('keyword');
 
         $fileName = 'Laporan_Pemasukan_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
@@ -119,8 +119,8 @@ class InventInMainController extends Controller
 
         $keyword = $request->input('keyword');
 
-        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay() : Carbon::now()->startOfMonth();
-        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay() : Carbon::now()->endOfMonth();
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
         $prod_receipt = $prod_receipt->whereBetween('invDateVend', [$fromDate, $toDate]);
 
 

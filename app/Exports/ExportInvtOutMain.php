@@ -36,7 +36,7 @@ class ExportInvtOutMain implements FromView
 
         $fromDate = $this->fromDate;
         $toDate = $this->toDate;
-        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
+        $prod_receipt = $prod_receipt->whereBetween('registrationDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
@@ -75,7 +75,7 @@ class ExportInvtOutMain implements FromView
                 'PickCode'
             ]);
 
-         return view('Export.excel.invent-out-main', [
+        return view('Export.excel.invent-out-main', [
             'prod_receipt' => $prod_receipt
         ]);
     }

@@ -33,7 +33,7 @@ class ExportEnvtInMain implements FromView
     public function view(): \Illuminate\Contracts\View\View
     {
 
-        $prod_receipt = ProdreceiptV::orderBy("registrationDate")
+        $prod_receipt = ProdreceiptV::orderBy("invDateVend", "desc")
             ->orderBy("purchRecId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
@@ -43,7 +43,7 @@ class ExportEnvtInMain implements FromView
         $fromDate = $this->fromDate;
         $toDate = $this->toDate;
 
-        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
+        $prod_receipt = $prod_receipt->whereBetween('invDateVend', [$fromDate, $toDate]);
 
 
         if ($keyword != null) {
