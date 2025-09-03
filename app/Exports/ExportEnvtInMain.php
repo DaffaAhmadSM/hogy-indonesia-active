@@ -20,7 +20,7 @@ class ExportEnvtInMain implements FromView
     protected $keywords;
 
 
-    public function __construct($fromDate, $toDate, $keywords)
+    public function __construct(Carbon $fromDate, Carbon $toDate, $keywords)
     {
         $this->fromDate = $fromDate;
         $this->toDate = $toDate;
@@ -40,19 +40,11 @@ class ExportEnvtInMain implements FromView
 
         $keyword = $this->keywords;
 
-        if ($this->fromDate != null) {
+        $fromDate = $this->fromDate;
+        $toDate = $this->toDate;
 
-            $fromDate = Carbon::createFromFormat('Y-m-d', $this->fromDate)->startOfDay();
+        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
-            if ($this->toDate != null) {
-                $toDate = Carbon::createFromFormat('Y-m-d', $this->toDate)->endOfDay();
-            } else {
-                $toDate = Carbon::now()->endOfDay();
-            }
-
-            $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
-
-        }
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {

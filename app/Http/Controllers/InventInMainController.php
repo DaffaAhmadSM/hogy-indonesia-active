@@ -82,7 +82,7 @@ class InventInMainController extends Controller
     public function export(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'fromDate' => 'date|date_format:Y-m-d',
+            'fromDate' => 'nullable|date|date_format:Y-m-d',
             'toDate' => 'nullable|date|after_or_equal:fromDate|date_format:Y-m-d',
             'keyword' => 'nullable|string|max:255',
         ]);
@@ -91,11 +91,11 @@ class InventInMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $fromDate = $request->input('fromDate');
-        $toDate = $request->input('toDate');
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->startOfDay() : Carbon::now();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->endOfDay() : Carbon::now();
         $keywords = $request->input('keyword');
 
-        $fileName = 'Laporan_Penerimaan_Barang_' . ($fromDate ?? '') . '_' . ($toDate ?? '') . '.xlsx';
+        $fileName = 'Laporan_Pemasukan_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
 
         return (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->download($fileName);
     }

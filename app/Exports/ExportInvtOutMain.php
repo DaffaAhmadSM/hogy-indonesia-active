@@ -34,8 +34,8 @@ class ExportInvtOutMain implements FromView
         $keyword = $this->keywords;
 
 
-        $fromDate = $this->fromDate ? Carbon::createFromFormat('Y-m-d', $this->fromDate)->startOfDay() : Carbon::now()->startOfMonth();
-        $toDate = $this->toDate ? Carbon::createFromFormat('Y-m-d', $this->toDate)->endOfDay() : Carbon::now()->endOfMonth();
+        $fromDate = $this->fromDate;
+        $toDate = $this->toDate;
         $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {
