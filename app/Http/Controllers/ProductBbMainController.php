@@ -28,6 +28,10 @@ class ProductBbMainController extends Controller
                 $type = 'BARANG_JADI';
                 $title .= 'Barang Jadi';
                 break;
+            case 'MP':
+                $type = "MESIN;PERALATAN";
+                $title .= 'Mesin & Peralatan';
+                break;
             default:
                 abort(404, 'Invalid product type');
         }
@@ -60,12 +64,13 @@ class ProductBbMainController extends Controller
 
         // 2. SET DEFAULTS & GET INPUTS
         // Use the validated data, falling back to defaults if not present.
-        $fromDate = $validated['fromDate'] ?? Carbon::now()->startOfMonth()->toDateString();
-        $toDate = $validated['toDate'] ?? Carbon::now()->endOfMonth()->toDateString();
+        $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
+        $toDate = $validated['toDate'] ?? Carbon::now()->toDateString();
         $warehouseId = $validated['warehouseId'] ?? 'WH';
         $productType = $type ?: 'BAHAN_BAKU'; // Use URL type, with a fallback
         $keyword = $validated['keyword'] ?? null;
         $searchTerm = '%' . $keyword . '%';
+
 
         // 3. CACHE KEY (IMPROVED LOGIC)
         // The cache key should be consistent for the same query, but unique per page.
@@ -73,6 +78,8 @@ class ProductBbMainController extends Controller
         $cursor = $request->input('cursor', 'first_page');
         $cacheKey = "product_bb_main_{$fromDate}_{$toDate}_{$warehouseId}_{$productType}_" . md5($keyword ?? '') . "_{$cursor}";
 
+
+        $productType = explode(';', $productType);
 
         // 4. QUERY EXECUTION & PAGINATION (WRAPPED IN CACHE)
         $products = Cache::remember($cacheKey, 300, function () use ($request, $validated, $fromDate, $toDate, $warehouseId, $productType, $keyword, $searchTerm) {
@@ -111,7 +118,7 @@ class ProductBbMainController extends Controller
                 })
 
                 // Filter products and transactions
-                ->where('product_v.productType', $productType)
+                ->whereIn('product_v.productType', $productType)
 
                 // Apply keyword search if provided
                 ->when($keyword, function ($query) use ($searchTerm) {
@@ -133,10 +140,12 @@ class ProductBbMainController extends Controller
             // ** THE FIX **
             // Append the validated filter values to the pagination links.
             // This ensures that when you click "next", the filters are included in the URL.
-            $paginatedProducts->appends($validated);
+            $paginatedProducts->withQueryString();
 
             return $paginatedProducts;
         });
+
+        // return response()->json($products);
 
         // 5. RENDER VIEW
         return view('Response.Report.ProductBbMain.search', compact('products'));
