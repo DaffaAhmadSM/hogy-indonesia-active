@@ -97,7 +97,7 @@ class InventOutMainController extends Controller
 
         $fileName = 'Laporan_Pengeluaran_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
 
-        return (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->download($fileName);
+        return (new \App\Exports\ExportInvtOutMain($fromDate, $toDate, $keywords))->download($fileName);
     }
 
     public function hxSearch(Request $request)
