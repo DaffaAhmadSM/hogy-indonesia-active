@@ -86,12 +86,12 @@
                     Bahan Jadi
                   </a>
 
-                  <a href="#delete"
+                  <a href="{{ route('report.product-bb-main', ["type" => "MP"]) }}"
                     class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                     Laporan Pertanggungjawaban Mutasi
                     Mesin dan Peralatan
                   </a>
-                  <a href="#delete"
+                  <a href="{{ route('report.product-reject-main') }}"
                     class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                     Laporan Pertanggungjawaban Mutasi
                     Barang Reject

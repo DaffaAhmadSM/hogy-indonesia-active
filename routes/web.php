@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InventInMainController;
 use App\Http\Controllers\InventOutMainController;
 use App\Http\Controllers\ProductBbMainController;
+use App\Http\Controllers\ProductRejectController;
 
 Route::get('/', function () {
     return view('main-layout');
@@ -48,6 +49,15 @@ Route::group(['prefix' => 'report'], function () {
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('{type}/search', [ProductBbMainController::class, 'hxSearch'])->name('report.product-bb-main.search');
+        });
+    });
+
+    Route::group(['prefix' => 'product-reject-main'], function () {
+        Route::get('/', [ProductRejectController::class, 'index'])->name('report.product-reject-main');
+        Route::get('/export', [ProductRejectController::class, 'export'])->name('report.product-reject-main.export');
+
+        Route::group(['prefix' => 'hx'], function () {
+            Route::get('/search', [ProductRejectController::class, 'hxSearch'])->name('report.product-reject-main.search');
         });
     });
 
