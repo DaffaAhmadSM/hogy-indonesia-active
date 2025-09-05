@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\ProductV;
 use Illuminate\Http\Request;
+use App\Exports\ExportProductBB;
+use App\Jobs\ProcessProductBBExport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductBbMainController extends Controller
 {
@@ -39,9 +44,81 @@ class ProductBbMainController extends Controller
         return view('Report.product-bb-main', compact('type', 'title'));
     }
 
-    public function export()
+    public function export(string $type, Request $request)
     {
-        // Logic for exporting data
+        $validator = Validator::make($request->all(), [
+            'fromDate' => 'nullable|date_format:Y-m-d',
+            'toDate' => 'nullable|date_format:Y-m-d|after_or_equal:fromDate',
+            'keyword' => 'nullable|string|max:255',
+            'warehouseId' => 'nullable|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // 2. Ambil input
+        $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
+        $toDate = $validated['toDate'] ?? Carbon::now()->toDateString();
+        $warehouseId = $validated['warehouseId'] ?? 'WH';
+        $productType = $type ?: 'BAHAN_BAKU';
+        $keyword = $validated['keyword'] ?? null;
+
+        $productTypeArray = explode(';', $productType);
+
+        // 3. Masukkan ekspor ke dalam antrian
+        $fromDateToDate = $fromDate . "-" . $toDate;
+        
+        $path = 'reports/';
+        $fileName ='products-' . $type . '-' . $fromDateToDate . '.xlsx';
+        $fullPathName = $path . $fileName;
+
+        $toast = [
+            'showToast' => [
+                'message' => 'Ekspor sedang diproses. File akan tersedia setelah selesai.',
+                'type' => 'success' // Tipe bisa: 'success', 'error', 'info'
+            ]
+        ];
+
+        $pollingView = view('components.hx.pool', ['filename' => $fileName])->render();
+
+        // check if the file exist, is yes delete
+        if (Storage::disk('public')->exists($fullPathName)) {
+            Storage::disk('public')->delete($fullPathName);
+        }
+
+        // `queue()` akan secara otomatis menjalankan ekspor di background.
+        // File akan disimpan di storage/app/public/reports/...
+        // Pastikan Anda sudah menjalankan `php artisan storage:link`
+        $export = new ExportProductBB($fromDate, $toDate, $warehouseId, $productTypeArray, $keyword);
+
+        // Kirim job ke antrian hanya dengan path file
+        ProcessProductBBExport::dispatch($export, $fullPathName);
+        // 4. Kirim respons dengan header HX-Trigger untuk menampilkan toast
+
+
+        return response($pollingView)->header('HX-Trigger', json_encode($toast));
+
+        // 4. Beri respons langsung ke pengguna
+        // return redirect()->back()->with('success', 'Ekspor sedang diproses. File akan tersedia untuk diunduh setelah selesai.');
+    }
+
+    public function checkExportStatus($filename)
+    {
+        $filePath = 'reports/' . $filename;
+
+        // Periksa apakah file sudah ada di storage publik
+        if (Storage::disk('public')->exists($filePath)) {
+            // Jika ada, kembalikan tombol download
+            $fileUrl = Storage::disk('public')->url($filePath);
+            return view('components.hx.download-button', ['fileUrl' => $fileUrl, 'filename' => $filename]);
+        } else {
+            // Jika belum, kembalikan status "processing"
+            // Ini akan membuat HTMX terus melakukan polling
+            return view('components.hx.pool', ['filename' => $filename]);
+        }
     }
 
 
