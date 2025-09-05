@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\ProductV; // Sesuaikan dengan path model Anda
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithCustomQuerySize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -11,7 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 
-class ExportProductBB implements FromQuery, WithHeadings, WithMapping, ShouldQueue, WithChunkReading
+class ExportProductBB implements FromQuery, WithHeadings, WithMapping, ShouldQueue, WithCustomQuerySize
 {
     use Exportable;
 
@@ -98,9 +99,33 @@ class ExportProductBB implements FromQuery, WithHeadings, WithMapping, ShouldQue
         ];
     }
 
-    public function chunkSize(): int
+    public function querySize(): int
     {
-        return 1000;
+        $searchTerm = '%' . $this->keyword . '%';
+        
+        // Hitung total baris yang akan diekspor berdasarkan filter
+        $query = ProductV::query()
+            ->leftJoin('prodtr_v as trans', function ($join) {
+                $join->on('product_v.productId', '=', 'trans.productId')
+                    ->where('trans.warehouseCode', '=', $this->warehouseId);
+            })
+            ->leftJoin('stockoph_v as sto', function ($join) {
+                $join->on('product_v.productId', '=', 'sto.productId')
+                    ->where('sto.warehouseId', '=', $this->warehouseId)
+                    ->where('sto.posted', '=', 1)
+                    ->whereBetween('sto.transDate', [$this->fromDate, $this->toDate]);
+            })
+            ->whereIn('product_v.productType', $this->productType)
+            ->when($this->keyword, function ($query) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('product_v.productId', 'like', $searchTerm)
+                        ->orWhere('product_v.productName', 'like', $searchTerm)
+                        ->orWhere('product_v.unitId', 'like', $searchTerm);
+                });
+            })
+            ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId')
+            ->orderBy('product_v.productId', 'asc');
+        return $query->count();
     }
 
     /**

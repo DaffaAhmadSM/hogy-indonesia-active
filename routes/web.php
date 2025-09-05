@@ -54,10 +54,11 @@ Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'product-wip-main'], function () {
         Route::get('/', [ProductWipMainController::class, 'index'])->name('report.product-wip-main');
-        Route::get('/export', [ProductWipMainController::class, 'export'])->name('report.product-wip-main.export');
+        Route::post('/export', [ProductWipMainController::class, 'export'])->name('report.product-wip-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [ProductWipMainController::class, 'hxSearch'])->name('report.product-wip-main.search');
+            Route::get('/export/status/{filename}', [ProductWipMainController::class, 'checkWipExportStatus'])->name('report.product-wip-main.export.status');
         });
     });
 

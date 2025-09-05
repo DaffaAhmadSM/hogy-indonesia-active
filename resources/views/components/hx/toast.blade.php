@@ -4,7 +4,7 @@
 <script>
     // 1. HTMX Toast Handler
     document.body.addEventListener('htmx:afterRequest', function (event) {
-        const triggerHeader = event.detail.xhr.getResponseHeader('HX-Trigger');
+        const triggerHeader = event.detail.xhr.getResponseHeader('HX-Trigger-toast');
         if (!triggerHeader) return;
 
         try {

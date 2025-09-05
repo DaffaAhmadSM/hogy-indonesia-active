@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ProdtrV;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Exports\ProductWipExport;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\ProcessProductWipExport;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProductWipMainController extends Controller
@@ -68,9 +71,61 @@ class ProductWipMainController extends Controller
         //
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'asofDate' => 'nullable|date_format:Y-m-d',
+            'keyword' => 'nullable|string|max:255',
+        ]);
 
+        if ($validator->fails()) {
+            $toast = ['showToast' => ['message' => $validator->errors()->first(), 'type' => 'error']];
+            return response('')->header('HX-Trigger', json_encode($toast));
+        }
+
+        $asofDate = $request->filled('asofDate') ? $request->input('asofDate') : Carbon::now()->toDateString();
+        $keyword = $request->filled('keyword') ? $request->input('keyword') : null;
+
+        $filename = 'wip-report-' . '-' . $asofDate . '-' . $keyword . '.xlsx';
+        $filePath = 'reports/' . $filename;
+
+        new ProductWipExport($asofDate, $keyword)->store($filePath, 'public');
+
+        if (Storage::disk('public')->exists($filePath)) {
+           Storage::disk('public')->delete($filePath);
+        }
+        // Kirim job ke antrian
+
+        $toast = ['showToast' => ['message' => 'Ekspor dimulai...', 'type' => 'info']];
+        $pollingView = view('components.hx.pool', ['filename' => $filename, 'checkRoute' => 'report.wip.export-status'])->render();
+
+        return response($pollingView)->header('HX-Trigger-toast', json_encode($toast));
+    }
+
+    public function download($filename)
+    {
+        $filePath = 'reports/' . $filename;
+
+        if (Storage::disk('public')->exists($filePath)) {
+            return Storage::disk('public')->download($filePath);
+        }
+
+        $toast = ['showToast' => ['message' => 'File not found, please export the report again.', 'type' => 'error']];
+        return response('')->header('HX-Trigger-toast', json_encode($toast));
+    }
+
+    /**
+     * Memeriksa status ekspor dan mengembalikan view yang sesuai.
+     */
+    public function checkWipExportStatus($filename)
+    {
+        $filePath = 'reports/' . $filename;
+
+        if (Storage::disk('public')->exists($filePath)) {
+            $fileUrl = Storage::disk('public')->url($filePath);
+            Cache::forget('export-status-wip-' . $filename);
+            return view('components.hx.download-button', ['fileUrl' => $fileUrl, 'filename' => $filename]);
+        }
     }
 
     public function hxSearch(Request $request)
@@ -122,7 +177,7 @@ class ProductWipMainController extends Controller
         }
 
         $cursor = $request->filled('cursor') ? $request->input('cursor') : "first_page";
-        $cacheKey = 'invent_out_main_' . $fromDate . '_' . $asofDate . '_' . $request->input('keyword') . '_' . $cursor;
+        $cacheKey = 'invent_out_main_' . $fromDate->toDateString() . '_' . $asofDate->toDateString() . '_' . $request->input('keyword') . '_' . $cursor;
         $cacheDuration = now()->addMinutes(10);
 
 

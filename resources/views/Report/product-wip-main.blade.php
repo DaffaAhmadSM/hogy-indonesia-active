@@ -103,24 +103,52 @@
 
 
 
-            <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white rounded"
-                x-data="{ search: '' }">
-                <div class="container mx-auto px-4 py-2 md:py-10">
-                    <div
-                        class="flex w-full max-w-md flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white px-4 py-2 rounded">
-                        <label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
-                        <div class="flex flex-row gap-2 w-full">
-                            <input id="keyword" type="text"
-                                class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75 dark:border-neutral-700 dark:bg-neutral-900/50 dark:focus-visible:outline-white"
-                                name="keyword" placeholder="search" x-model="search" />
-                            <button hx-get="{{ route('report.product-wip-main.search') }}"
-                                hx-include="#asofDate-data, #keyword"
-                                class=" rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
-                                Search
-                            </button>
-                        </div>
+            <div class="flex flex-col gap-1 text-neutral-600 px-4 py-2">
+                <label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
+
+                <div class="flex flex-row gap-2 w-full items-end">
+                    <div class="flex-grow">
+                        <input id="keyword" type="text"
+                            class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                            name="keyword" placeholder="Cari kode atau nama barang..." />
                     </div>
 
+                    <button hx-get="{{ route('report.product-wip-main.search') }}" hx-include="#asofDate-data, #keyword"
+                        hx-target="#prod-receipt-table-body" hx-indicator="#search-spinner"
+                        class="flex-shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">
+                        Search
+                    </button>
+
+                    <button hx-post="{{ route('report.product-wip-main.export') }}"
+                        hx-include="[name=_token], #asofDate-data, #keyword" hx-target="#export-area" hx-swap="innerHTML"
+                        hx-indicator="#export-spinner"
+                        class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                        Export
+                    </button>
+                </div>
+
+                {{-- Area untuk menampilkan status ekspor dan spinner --}}
+                <div class="flex flex-row items-center gap-2 mt-2 min-h-[40px]">
+                    <div id="export-area" class="w-full max-w-lg space-y-2">
+                        <div for="File" class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
+                            <div class="flex items-center justify-center gap-4">
+                                <span class="font-medium"> There are no export queues </span>
+
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="export-spinner" class="htmx-indicator">
+                        @include('components.loading-spinner')
+                    </div>
+                    <div id="search-spinner" class="htmx-indicator">
+                        @include('components.loading-spinner')
+                    </div>
                 </div>
             </div>
         </div>
@@ -148,6 +176,8 @@
 
 
     </div>
+
+    @include('components.hx.toast')
 
     <script>
         const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
