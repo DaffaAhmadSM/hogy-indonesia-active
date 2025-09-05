@@ -18,8 +18,6 @@ class AuthController extends Controller
 
             return redirect()->intended('/')->with('success', 'Logged in successfully.');
         }
-
-        dd($credentials);
         return back()->withErrors([
             'name' => 'The provided credentials do not match our records.',
         ])->onlyInput('name');

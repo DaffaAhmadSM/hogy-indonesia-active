@@ -84,8 +84,7 @@ class ProductWipMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $cacheKey = 'invent_out_main_' . md5(serialize($request->all()));
-        $cacheDuration = now()->addMinutes(10);
+
 
         $prod_tr = ProdtrV::where('warehouseCode', 'WIP')
             ->whereIn('type', [
@@ -94,22 +93,21 @@ class ProductWipMainController extends Controller
                 'Po_Picked',
                 'So_Picked'
             ])
-            ->orderBy('transDate', 'desc')
             ->orderBy('productId')
             ->orderBy('unitId');
 
-        $fromDate = Carbon::createFromFormat('Y-m-d', "1990-01-01")->startOfDay();
+        $fromDate = Carbon::createFromFormat('Y-m-d', "1990-01-01");
 
         $keyword = $request->input('keyword');
 
         if ($request->input('asofDate') != null) {
 
-            $asofDate = Carbon::createFromFormat('Y-m-d', $request->input('asofDate'))->startOfDay();
+            $asofDate = Carbon::createFromFormat('Y-m-d', $request->input('asofDate'));
 
             $prod_tr = $prod_tr->whereBetween('transDate', [$fromDate, $asofDate]);
 
         } else {
-            $asofDate = Carbon::now()->startOfDay();
+            $asofDate = Carbon::now();
             $prod_tr = $prod_tr->whereBetween('transDate', [$fromDate, $asofDate]);
         }
 
@@ -122,6 +120,10 @@ class ProductWipMainController extends Controller
                     ->orWhere('unitId', 'like', $searchTerm);
             });
         }
+
+        $cursor = $request->filled('cursor') ? $request->input('cursor') : "first_page";
+        $cacheKey = 'invent_out_main_' . $fromDate . '_' . $asofDate . '_' . $request->input('keyword') . '_' . $cursor;
+        $cacheDuration = now()->addMinutes(10);
 
 
         // $prod_tr = $prod_tr
