@@ -11,5 +11,24 @@ services:
             ["php", "artisan", "octane:start", "--host=0.0.0.0", "--port=8080"]
         restart: unless-stopped
         working_dir: /app
+        networks:
+          - laravel-network
         ports:
             - 8003:8080
+
+    queue:
+        env_file: ".env"
+        image: dbi
+        volumes:
+            - .:/app
+        command:
+            ["php", "artisan", "queue:work", "--timeout=600"]
+        restart: unless-stopped
+        networks:
+            - laravel-network
+        working_dir: /app
+
+networks:
+    laravel-network:
+        name: laravel-network
+        driver: bridge

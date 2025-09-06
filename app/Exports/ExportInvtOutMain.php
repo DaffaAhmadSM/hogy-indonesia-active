@@ -3,14 +3,16 @@
 namespace App\Exports;
 
 use App\Models\SalespickV;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class ExportInvtOutMain implements FromView
+class ExportInvtOutMain implements FromView, ShouldQueue
 {
-    use Exportable;
+    use Exportable, Queueable;
 
     protected $fromDate;
     protected $toDate;

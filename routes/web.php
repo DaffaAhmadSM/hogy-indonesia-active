@@ -45,7 +45,7 @@ Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'invent-out-main'], function () {
         Route::get('/', [InventOutMainController::class, 'index'])->name('report.invent-out-main');
-        Route::get('/export', [InventOutMainController::class, 'export'])->name('report.invent-out-main.export');
+        Route::post('/export', [InventOutMainController::class, 'export'])->name('report.invent-out-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [InventOutMainController::class, 'hxSearch'])->name('report.invent-out-main.search');

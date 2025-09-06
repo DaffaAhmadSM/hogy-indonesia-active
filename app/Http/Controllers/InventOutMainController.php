@@ -91,13 +91,26 @@ class InventOutMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $fromDate = $request->filled('fromDate')? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')): Carbon::now();
-        $toDate = $request->filled('toDate')? Carbon::createFromFormat('Y-m-d', $request->input('toDate')): Carbon::now();
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
         $keywords = $request->input('keyword');
 
         $fileName = 'Laporan_Pengeluaran_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
+        $path = 'reports/';
+        $fullPathName = $path . $fileName;
 
-        return (new \App\Exports\ExportInvtOutMain($fromDate, $toDate, $keywords))->download($fileName);
+        (new \App\Exports\ExportInvtOutMain($fromDate, $toDate, $keywords))->store($fullPathName, 'public');
+
+        $toast = [
+            'showToast' => [
+                'message' => 'Ekspor sedang diproses. File akan tersedia setelah selesai.',
+                'type' => 'success' // Tipe bisa: 'success', 'error', 'info'
+            ]
+        ];
+        $pollingView = view('components.hx.pool', ['filename' => $fileName, 'checkRoute' => 'report.inventOutMain.export-status'])->render();
+
+
+        return response($pollingView)->header('HX-Trigger-toast', json_encode($toast));
     }
 
     public function hxSearch(Request $request)
