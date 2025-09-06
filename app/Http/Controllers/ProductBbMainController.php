@@ -99,7 +99,7 @@ class ProductBbMainController extends Controller
         // 4. Kirim respons dengan header HX-Trigger untuk menampilkan toast
 
 
-        return response($pollingView)->header('HX-Trigger', json_encode($toast));
+        return response($pollingView)->header('HX-Trigger-toast', json_encode($toast));
 
         // 4. Beri respons langsung ke pengguna
         // return redirect()->back()->with('success', 'Ekspor sedang diproses. File akan tersedia untuk diunduh setelah selesai.');

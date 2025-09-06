@@ -96,8 +96,16 @@ class InventInMainController extends Controller
         $keywords = $request->input('keyword');
 
         $fileName = 'Laporan_Pemasukan_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
+        $path = 'reports/';
+        $fullPathName = $path . $fileName;
 
-        return (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->download($fileName);
+        (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->store($fullPathName, 'public');
+
+        $toast = ['showToast' => ['message' => 'Ekspor akan siap dalam beberapa saat.', 'type' => 'success']];
+        $pollingView = view('components.hx.pool', ['filename' => $fileName, 'checkRoute' => 'report.inventInMain.export-status'])->render();
+
+
+        return response($pollingView)->header('HX-Trigger-toast', json_encode($toast));
     }
 
     public function hxSearch(Request $request)

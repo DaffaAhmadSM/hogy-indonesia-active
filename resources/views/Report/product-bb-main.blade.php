@@ -215,7 +215,7 @@
                             <!-- Tombol Export -->
                             <button hx-post="{{ route('report.product-bb-main.export', ['type' => $type]) }}"
                                 hx-include="[name=_token], #fromDate-data, #toDate-data, #keyword" hx-target="#export-area"
-                                hx-swap="beforeend" hx-indicator="#export-spinner"
+                                hx-swap="innerHTML" hx-indicator="#export-spinner"
                                 class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
                                 Export
                             </button>
@@ -225,7 +225,18 @@
                         <div class="flex flex-row items-center gap-2 mt-2 min-h-[30px]">
                             <!-- min-h untuk mencegah layout shift -->
                             <div id="export-area" class="w-full max-w-lg space-y-2">
-                                <!-- Status ekspor akan muncul di sini -->
+                                <div for="File"
+                                    class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
+                                    <div class="flex items-center justify-center gap-4">
+                                        <span class="font-medium"> There are no export queues </span>
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="htmx-indicator" id="export-spinner">

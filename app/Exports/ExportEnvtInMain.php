@@ -3,16 +3,18 @@
 namespace App\Exports;
 
 use App\Models\ProdreceiptV;
+use Illuminate\Bus\Queueable;
 use Illuminate\Support\Carbon;
-use Maatwebsite\Excel\Concerns\Exportable;
 use function Livewire\Volt\protect;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class ExportEnvtInMain implements FromView
+class ExportEnvtInMain implements FromView, ShouldQueue
 {
 
-    use Exportable;
+    use Exportable, Queueable;
 
     protected $fromDate;
     protected $toDate;

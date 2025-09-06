@@ -96,7 +96,7 @@ class ProductWipMainController extends Controller
         }
         // Kirim job ke antrian
 
-        $toast = ['showToast' => ['message' => 'Ekspor dimulai...', 'type' => 'info']];
+        $toast = ['showToast' => ['message' => 'Ekspor dimulai...', 'type' => 'success']];
         $pollingView = view('components.hx.pool', ['filename' => $filename, 'checkRoute' => 'report.wip.export-status'])->render();
 
         return response($pollingView)->header('HX-Trigger-toast', json_encode($toast));
