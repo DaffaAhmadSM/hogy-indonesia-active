@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\SalespickV;
 use Illuminate\Http\Request;
+use App\Models\SalesPickBomV;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 
 class InventOutMainController extends Controller
@@ -50,8 +53,43 @@ class InventOutMainController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(string $salesPickLineRecId)
     {
+
+        try {
+            // Use the Eloquent model to build the query
+            $salesPicks = SalesPickBomV::query()
+                ->select([
+                    'SalesPickLineRecId',
+                    'InventTransIdFg',
+                    'ItemId',
+                    'ItemName',
+                    'Qty',
+                    'Unit',
+                    'DocBc',
+                    'RequestNo',
+                    'RegistrationNo',
+                    'RegistrationDate',
+                    'InvoiceId',
+                    'InvoiceDate',
+                    'InvJournalId',
+                    'WorksheetId'
+                ])
+                ->where('SalesPickLineRecId', $salesPickLineRecId)
+                ->orderBy('SalesPickLineRecId', 'asc')
+                ->get();
+
+            // return $salesPicks;
+
+            return view('Response.Report.InventOutMain.detail', compact('salesPicks'));
+        } catch (QueryException $e) {
+            // Log the error for debugging.
+            Log::error("Database error in findListSalesPickBom: " . $e->getMessage());
+
+            $salesPicks = collect();
+            // Return an empty collection on failure, similar to the original C# code.
+            return view('Response.Report.InventOutMain.detail', compact('salesPicks'));
+        }
     }
 
     /**
@@ -155,6 +193,7 @@ class InventOutMainController extends Controller
 
         $prod_receipt = $prod_receipt
             ->cursorPaginate(50, [
+                'salesPickLineRecId',
                 'transDate',
                 'requestNo',
                 'docBc',
@@ -173,6 +212,7 @@ class InventOutMainController extends Controller
                 'notes',
                 'PickCode'
             ])->withQueryString();
+        // return response()->json($prod_receipt);
 
         return view('Response.Report.InventOutMain.search', compact('prod_receipt'));
     }

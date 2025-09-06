@@ -265,14 +265,14 @@
 							</button>
 
 							<a href="{{ route('report.invent-in-main.export') }}" @click="
-									 const from = document.getElementById('fromDate-data')?.value || '';
-									 const to = document.getElementById('toDate-data')?.value || '';
-									 const kw = document.getElementById('keyword')?.value || '';
-									 $el.href = '{{ route('report.invent-in-main.export') }}'
-									   + '?fromDate=' + encodeURIComponent(from)
-									   + '&toDate=' + encodeURIComponent(to)
-									   + '&keyword=' + encodeURIComponent(kw);
-								   " download
+														 const from = document.getElementById('fromDate-data')?.value || '';
+														 const to = document.getElementById('toDate-data')?.value || '';
+														 const kw = document.getElementById('keyword')?.value || '';
+														 $el.href = '{{ route('report.invent-in-main.export') }}'
+														   + '?fromDate=' + encodeURIComponent(from)
+														   + '&toDate=' + encodeURIComponent(to)
+														   + '&keyword=' + encodeURIComponent(kw);
+													   " download
 								class=" rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed h-1/2">
 								Export
 							</a>
@@ -317,6 +317,80 @@
 
 
 	</div>
+
+	<div x-data="{ isOpen: false }" x-show="isOpen" @htmx:after-swap="isOpen = true" @keydown.escape.window="isOpen = false"
+		x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+		x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+		class="fixed inset-0 z-50 grid place-content-center bg-black/50 p-4" style="display: none;" {{-- Hide it initially
+		to prevent flash of content --}}>
+		{{-- The Modal Panel --}}
+		<div @click.away="isOpen = false"
+			class="w-full max-w-[97rem] h-full overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+			<div class="flex items-start justify-between">
+				<h2 id="modalTitle" class="text-xl font-bold text-gray-900 sm:text-2xl">Detail Item</h2>
+
+				<button @click="isOpen = false" type="button"
+					class="-me-4 -mt-4 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 focus:outline-none"
+					aria-label="Close">
+					<svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
+						stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			{{-- This is the target where HTMX will place the dynamic content --}}
+			<div id="modal-content" class="mt-4">
+				<div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+					<table class="w-full table-fixed divide-y-2 divide-gray-200">
+						<thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+							<tr class="*:font-medium *:text-gray-900">
+								<th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
+								<th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
+								<th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
+								<th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
+								<th class="px-3 py-2 whitespace-normal break-words">No Invoice</th>
+								<th class="px-3 py-2 whitespace-normal break-words">Tgl Invoice</th>
+								<th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
+								<th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
+								<th class="px-3 py-2 whitespace-normal break-words">QTY</th>
+								<th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
+								<th class="px-3 py-2 whitespace-normal break-words">JournalID</th>
+								<th class="px-3 py-2 whitespace-normal break-words">Worksheet</th>
+							</tr>
+						</thead>
+
+						<tbody class="divide-y divide-gray-200" id="modal-table">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	{{-- <div x-data="{ isOpen: false }" @htmx:after-swap="isOpen = true" class="relative z-50">
+		<div x-show="isOpen" x-transition.opacity class="fixed inset-0 bg-black/50"></div>
+
+		<div x-show="isOpen" x-transition class="fixed inset-0 overflow-y-auto">
+			<div class="flex min-h-full items-center justify-center p-4">
+				<div @click.away="isOpen = false"
+					class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
+					<button @click="isOpen = false"
+						class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200">
+						<svg class="h-6 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M6 18L18 6M6 6l12 12" />
+						</svg>
+					</button>
+
+					<div id="modal-content">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> --}}
 
 	<script>
 		const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

@@ -1,5 +1,7 @@
 @foreach ($prod_receipt->items() as $item)
-    <tr class="*:text-gray-900 *:first:font-medium">
+    <tr class="*:text-gray-900 *:first:font-medium"
+        hx-get="{{ route('report.invent-out-main.detail', ['salesPickLineRecId' => $item->salesPickLineRecId]) }}"
+        hx-target="#modal-table" hx-swap="innerHTML" hx-trigger="click">
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->docBc }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->requestNo }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->registrationNo }}</td>

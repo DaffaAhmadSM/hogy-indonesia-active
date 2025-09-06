@@ -14,8 +14,8 @@ use App\Http\Controllers\ProductRejectController;
 Route::get('/', function () {
     return view('main-layout');
 })
-->middleware('auth')
-->name('home');
+    ->middleware('auth')
+    ->name('home');
 
 Route::get('/login', function () {
     return view('login');
@@ -27,8 +27,8 @@ Route::get('/logout', function (Request $request) {
     Session::regenerateToken();
     return redirect('/login');
 })
-->middleware('auth')
-->name('logout');
+    ->middleware('auth')
+    ->name('logout');
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
@@ -46,6 +46,7 @@ Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
     Route::group(['prefix' => 'invent-out-main'], function () {
         Route::get('/', [InventOutMainController::class, 'index'])->name('report.invent-out-main');
         Route::post('/export', [InventOutMainController::class, 'export'])->name('report.invent-out-main.export');
+        Route::get('/detail/{salesPickLineRecId}', [InventOutMainController::class, 'show'])->name('report.invent-out-main.detail');
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [InventOutMainController::class, 'hxSearch'])->name('report.invent-out-main.search');
