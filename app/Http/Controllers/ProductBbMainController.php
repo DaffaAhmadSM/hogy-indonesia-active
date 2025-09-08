@@ -105,14 +105,14 @@ class ProductBbMainController extends Controller
         // return redirect()->back()->with('success', 'Ekspor sedang diproses. File akan tersedia untuk diunduh setelah selesai.');
     }
 
-    public function checkExportStatus($filename)
+    public function checkExportStatus($filename, Request $request)
     {
         $filePath = 'reports/' . $filename;
 
         // Periksa apakah file sudah ada di storage publik
         if (Storage::disk('public')->exists($filePath)) {
             // Jika ada, kembalikan tombol download
-            $fileUrl = Storage::disk('public')->url($filePath);
+            $fileUrl = $request->getSchemeAndHttpHost() . "/storage/" . $filePath;
             return view('components.hx.download-button', ['fileUrl' => $fileUrl, 'filename' => $filename]);
         } else {
             // Jika belum, kembalikan status "processing"
