@@ -21,3 +21,19 @@
         </td>
     </tr>
 @endif
+
+@if ($products->isEmpty())
+     <tr class="*:text-gray-900 *:first:font-medium">
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">-</td>
+
+    </tr>
+@endif

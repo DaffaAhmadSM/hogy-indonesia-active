@@ -8,6 +8,8 @@ use App\Models\StockOpName;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Exports\ProductRejectExport;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProductRejectController extends Controller
@@ -30,8 +32,45 @@ class ProductRejectController extends Controller
 
     public function export()
     {
-        // Logic for exporting data goes here
-        return response()->download(storage_path('app/public/product-reject-report.xlsx'));
+        $validator = Validator::make(request()->all(), [
+            'fromDate' => 'nullable|date_format:Y-m-d',
+            'toDate' => 'nullable|date_format:Y-m-d|after_or_equal:fromDate',
+            'keyword' => 'nullable|string|max:255',
+            'warehouseId' => 'nullable|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
+        $validated['warehouseId'] = request()->filled('warehouseId') ? $validated['warehouseId'] : 'REJ';
+        $validated['fromDate'] = request()->filled('fromDate') ? Carbon::parse($validated['fromDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
+        $validated['toDate'] = request()->filled('toDate') ? Carbon::parse($validated['toDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
+
+        $fromDateToDate = $validated['fromDate'] . "-" . $validated['toDate'];
+
+        $path = 'reports/';
+        $fileName = 'products-reject' . '-' . $fromDateToDate . '.xlsx';
+        $fullPathName = $path . $fileName;
+
+        $toast = [
+            'showToast' => [
+                'message' => 'Ekspor sedang diproses. File akan tersedia setelah selesai.',
+                'type' => 'success' // Tipe bisa: 'success', 'error', 'info'
+            ]
+        ];
+
+        $pollingView = view('components.hx.pool', ['filename' => $fileName])->render();
+
+        // check if the file exist, is yes delete
+        if (Storage::disk('public')->exists($fullPathName)) {
+            Storage::disk('public')->delete($fullPathName);
+        }
+
+        (new ProductRejectExport($validated))->store($fullPathName, 'public');
+
+        return response($pollingView)->header('HX-Trigger-toast', json_encode($toast));
     }
 
     public function hxSearch(Request $request)
@@ -96,7 +135,7 @@ class ProductRejectController extends Controller
 
             ->orderBy('prodtr_v.productId')
             ->cursorPaginate(50)->withQueryString();
-            
+
         return view('Response.Report.ProductReject.search', compact('products'));
     }
 

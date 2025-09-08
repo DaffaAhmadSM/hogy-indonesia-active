@@ -75,7 +75,7 @@ Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'product-reject-main'], function () {
         Route::get('/', [ProductRejectController::class, 'index'])->name('report.product-reject-main');
-        Route::get('/export', [ProductRejectController::class, 'export'])->name('report.product-reject-main.export');
+        Route::post('/export', [ProductRejectController::class, 'export'])->name('report.product-reject-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
             Route::get('/search', [ProductRejectController::class, 'hxSearch'])->name('report.product-reject-main.search');
