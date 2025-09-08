@@ -82,6 +82,17 @@ Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
         });
     });
 
+    Route::group(['prefix' => 'product-scrap-main'], function () {
+        Route::get('/', function () : \Illuminate\View\View {
+            return view('Report.product-scrap-main');
+        })->name('report.product-scrap-main');
+        Route::post('/export', [ProductRejectController::class, 'export'])->name('report.product-scrap-main.export');
+
+        Route::group(['prefix' => 'hx'], function () {
+            Route::get('/search', [ProductRejectController::class, 'hxSearch'])->name('report.product-scrap-main.search');
+        });
+    });
+
 });
 
 // Route::view('dashboard', 'dashboard')

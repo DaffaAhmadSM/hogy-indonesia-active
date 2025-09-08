@@ -45,13 +45,23 @@ class ProductRejectController extends Controller
 
         $validated = $validator->validated();
         $validated['warehouseId'] = request()->filled('warehouseId') ? $validated['warehouseId'] : 'REJ';
+
+        $warehouseId = $validated['warehouseId'];
+        if ($warehouseId == 'REJ') { 
+            $fileNameWarehouse = 'Reject';
+        }else if ($warehouseId == 'SCR') {
+            $fileNameWarehouse = 'Scrap';
+        } else {
+            $fileNameWarehouse = $warehouseId;
+        }
+
         $validated['fromDate'] = request()->filled('fromDate') ? Carbon::parse($validated['fromDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
         $validated['toDate'] = request()->filled('toDate') ? Carbon::parse($validated['toDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
 
         $fromDateToDate = $validated['fromDate'] . "-" . $validated['toDate'];
 
         $path = 'reports/';
-        $fileName = 'products-reject' . '-' . $fromDateToDate . '.xlsx';
+        $fileName = 'products-' . $fileNameWarehouse . '-' . $fromDateToDate . '.xlsx';
         $fullPathName = $path . $fileName;
 
         $toast = [
