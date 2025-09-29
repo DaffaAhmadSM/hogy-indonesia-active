@@ -171,8 +171,8 @@ class InventOutMainController extends Controller
         $keyword = $request->input('keyword');
 
 
-        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
-        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->toDateString() : Carbon::now();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->toDateString() : Carbon::now();
         $prod_receipt = $prod_receipt->whereBetween('registrationDate', [$fromDate, $toDate]);
 
         if ($keyword != null) {

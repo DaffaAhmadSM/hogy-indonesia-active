@@ -35,7 +35,7 @@ class ExportEnvtInMain implements FromView, ShouldQueue
     public function view(): \Illuminate\Contracts\View\View
     {
 
-        $prod_receipt = ProdreceiptV::orderBy("transDate", "desc")
+        $prod_receipt = ProdreceiptV::orderBy("registrationDate", "desc")
             ->orderBy("purchRecId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
@@ -45,7 +45,7 @@ class ExportEnvtInMain implements FromView, ShouldQueue
         $fromDate = $this->fromDate;
         $toDate = $this->toDate;
 
-        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
+        $prod_receipt = $prod_receipt->whereBetween('registrationDate', [$fromDate, $toDate]);
 
 
         if ($keyword != null) {

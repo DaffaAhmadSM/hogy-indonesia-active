@@ -120,7 +120,7 @@ class InventInMainController extends Controller
             return response()->json(['errors' => $validator->errors()->first()], 422);
         }
 
-        $prod_receipt = ProdreceiptV::orderBy("transDate", "desc")
+        $prod_receipt = ProdreceiptV::orderBy("registrationDate", "desc")
             ->orderBy("purchRecId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
@@ -129,7 +129,7 @@ class InventInMainController extends Controller
 
         $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->toDateString() : Carbon::now();
         $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->toDateString() : Carbon::now();
-        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
+        $prod_receipt = $prod_receipt->whereBetween('registrationDate', [$fromDate, $toDate]);
 
 
         if ($keyword != null) {
