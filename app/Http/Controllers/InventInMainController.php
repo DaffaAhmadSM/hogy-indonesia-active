@@ -120,7 +120,7 @@ class InventInMainController extends Controller
             return response()->json(['errors' => $validator->errors()->first()], 422);
         }
 
-        $prod_receipt = ProdreceiptV::orderBy("invDateVend", "desc")
+        $prod_receipt = ProdreceiptV::orderBy("transDate", "desc")
             ->orderBy("purchRecId")
             ->orderBy("ItemId")
             ->where('isCancel', 0);
@@ -129,16 +129,19 @@ class InventInMainController extends Controller
 
         $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
         $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
-        $prod_receipt = $prod_receipt->whereBetween('invDateVend', [$fromDate, $toDate]);
+        $prod_receipt = $prod_receipt->whereBetween('transDate', [$fromDate, $toDate]);
 
 
         if ($keyword != null) {
             $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
-                    $q->where('purchRecId', 'like', "%$keyword%")
+                    $q->where('requestNo', 'like', "%$keyword%")
+                        ->orWhere('docBc', 'like', "%$keyword%")
+                        ->orWhere('registrationNo', 'like', "%$keyword%")
+                        ->orWhere('invNoVend', 'like', "%$keyword%")
+                        ->orWhere('VendName', 'like', "%$keyword%")
                         ->orWhere('ItemId', 'like', "%$keyword%")
-                        ->orWhere('ItemName', 'like', "%$keyword%")
-                        ->orWhere('VendName', 'like', "%$keyword%");
+                        ->orWhere('ItemName', 'like', "%$keyword%");
                 });
             });
         }
