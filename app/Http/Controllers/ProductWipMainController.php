@@ -89,7 +89,7 @@ class ProductWipMainController extends Controller
         $filename = 'wip-report-' . '-' . $asofDate . '-' . $keyword . '.xlsx';
         $filePath = 'reports/' . $filename;
 
-        new ProductWipExport($asofDate, $keyword)->store($filePath, 'public');
+        (new ProductWipExport($asofDate, $keyword))->store($filePath, 'public');
 
         if (Storage::disk('public')->exists($filePath)) {
            Storage::disk('public')->delete($filePath);

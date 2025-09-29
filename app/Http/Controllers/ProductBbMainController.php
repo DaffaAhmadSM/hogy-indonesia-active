@@ -60,8 +60,9 @@ class ProductBbMainController extends Controller
         $validated = $validator->validated();
 
         // 2. Ambil input
-        $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
-        $toDate = $validated['toDate'] ?? Carbon::now()->toDateString();
+        // $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
+        $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
+        $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
         $warehouseId = $validated['warehouseId'] ?? 'WH';
         $productType = $type ?: 'BAHAN_BAKU';
         $keyword = $validated['keyword'] ?? null;
@@ -141,8 +142,9 @@ class ProductBbMainController extends Controller
 
         // 2. SET DEFAULTS & GET INPUTS
         // Use the validated data, falling back to defaults if not present.
-        $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
-        $toDate = $validated['toDate'] ?? Carbon::now()->toDateString();
+        // $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
+        $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
+        $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
         $warehouseId = $validated['warehouseId'] ?? 'WH';
         $productType = $type ?: 'BAHAN_BAKU'; // Use URL type, with a fallback
         $keyword = $validated['keyword'] ?? null;

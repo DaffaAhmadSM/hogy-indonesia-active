@@ -47,16 +47,16 @@ class ProductRejectController extends Controller
         $validated['warehouseId'] = request()->filled('warehouseId') ? $validated['warehouseId'] : 'REJ';
 
         $warehouseId = $validated['warehouseId'];
-        if ($warehouseId == 'REJ') { 
+        if ($warehouseId == 'REJ') {
             $fileNameWarehouse = 'Reject';
-        }else if ($warehouseId == 'SCR') {
+        } else if ($warehouseId == 'SCR') {
             $fileNameWarehouse = 'Scrap';
         } else {
             $fileNameWarehouse = $warehouseId;
         }
 
-        $validated['fromDate'] = request()->filled('fromDate') ? Carbon::parse($validated['fromDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
-        $validated['toDate'] = request()->filled('toDate') ? Carbon::parse($validated['toDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
+        $validated['fromDate'] = request()->filled('fromDate') ? Carbon::parse($validated['fromDate'])->toDateString() : Carbon::now()->toDateString();
+        $validated['toDate'] = request()->filled('toDate') ? Carbon::parse($validated['toDate'])->toDateString() : Carbon::now()->toDateString();
 
         $fromDateToDate = $validated['fromDate'] . "-" . $validated['toDate'];
 
@@ -102,8 +102,8 @@ class ProductRejectController extends Controller
 
 
         $validated['warehouseId'] = $request->filled('warehouseId') ? $validated['warehouseId'] : 'REJ';
-        $validated['toDate'] = $request->filled('toDate') ? Carbon::parse($validated['toDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
-        $validated['fromDate'] = $request->filled('fromDate') ? Carbon::parse($validated['fromDate'])->toDateTimeString() : Carbon::now()->toDateTimeString();
+        $validated['toDate'] = $request->filled('toDate') ? Carbon::parse($validated['toDate'])->toDateString() : Carbon::now()->toDateString();
+        $validated['fromDate'] = $request->filled('fromDate') ? Carbon::parse($validated['fromDate'])->toDateString() : Carbon::now()->toDateString();
 
         // 2. Subquery for stock opname (remains the same)
         $stockOpnameSubquery = StockOpname::query()
