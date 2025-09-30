@@ -123,6 +123,8 @@ class InventInMainController extends Controller
         $prod_receipt = ProdreceiptV::orderBy("registrationDate", "desc")
             ->orderBy("purchRecId")
             ->orderBy("ItemId")
+            ->orderBy("amount")
+            ->orderBy("price")
             ->where('isCancel', 0);
 
         $keyword = $request->input('keyword');
@@ -148,7 +150,7 @@ class InventInMainController extends Controller
 
 
         $prod_receipt = $prod_receipt
-            ->cursorPaginate(50, [
+            ->cursorPaginate(500, [
                 'purchRecId',
                 'transDate',
                 'requestNo',

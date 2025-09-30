@@ -129,11 +129,11 @@ class InventOutMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
-        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->toDateString() : Carbon::now()->toDateString();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->toDateString() : Carbon::now()->toDateString();
         $keywords = $request->input('keyword');
 
-        $fileName = 'Laporan_Pengeluaran_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
+        $fileName = 'Laporan_Pengeluaran_Barang_' . ($fromDate ?? '') . '_' . ($toDate ?? '') . '.xlsx';
         $path = 'reports/';
         $fullPathName = $path . $fileName;
 
@@ -166,6 +166,8 @@ class InventOutMainController extends Controller
         $prod_receipt = SalespickV::orderBy("registrationDate", "desc")
             ->orderBy("invoiceId")
             ->orderBy("ItemId")
+            ->orderBy("amount")
+            ->orderBy("price")
             ->where('isCancel', 0);
 
         $keyword = $request->input('keyword');
@@ -192,7 +194,7 @@ class InventOutMainController extends Controller
 
 
         $prod_receipt = $prod_receipt
-            ->cursorPaginate(50, [
+            ->cursorPaginate(500, [
                 'salesPickLineRecId',
                 'transDate',
                 'requestNo',

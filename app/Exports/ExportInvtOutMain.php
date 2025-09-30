@@ -31,6 +31,8 @@ class ExportInvtOutMain implements FromView, ShouldQueue
         $prod_receipt = SalespickV::orderBy("registrationDate", "desc")
             ->orderBy("invoiceId")
             ->orderBy("ItemId")
+            ->orderBy("amount")
+            ->orderBy("price")
             ->where('isCancel', 0);
 
         $keyword = $this->keywords;
