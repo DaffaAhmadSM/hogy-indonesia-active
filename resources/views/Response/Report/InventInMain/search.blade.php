@@ -4,8 +4,8 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->requestNo }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->registrationNo }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->registrationDate }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->invNoVend }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->invDateVend }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PackCode }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->transDate }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->VendName }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->ItemId }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->ItemName }}</td>

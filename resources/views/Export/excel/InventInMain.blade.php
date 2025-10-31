@@ -25,8 +25,8 @@
                     <td>{{ $item->requestNo }}</td>
                     <td>{{ $item->registrationNo }}</td>
                     <td>{{ $item->registrationDate }}</td>
-                    <td>{{ $item->invNoVend }}</td>
-                    <td>{{ $item->invDateVend }}</td>
+                    <td>{{ $item->PackCode }}</td>
+                    <td>{{ $item->transDate }}</td>
                     <td>{{ $item->VendName }}</td>
                     <td>{{ $item->ItemId }}</td>
                     <td>{{ $item->ItemName }}</td>

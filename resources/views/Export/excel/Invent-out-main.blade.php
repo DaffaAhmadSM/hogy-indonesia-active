@@ -29,8 +29,8 @@
                 <td>{{ $item->requestNo }}</td>
                 <td>{{ $item->registrationNo }}</td>
                 <td>{{ $item->registrationDate }}</td>
-                <td>{{ $item->invoiceId }}</td>
-                <td>{{ $item->invoiceDate }}</td>
+                <td>{{ $item->PickCode }}</td>
+                <td>{{ $item->transDate }}</td>
                 <td>{{ $item->custName }}</td>
                 <td>{{ $item->ItemId }}</td>
                 <td>{{ $item->ItemName }}</td>

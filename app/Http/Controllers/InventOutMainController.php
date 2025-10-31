@@ -63,6 +63,8 @@ class InventOutMainController extends Controller
                     'SalesPickLineRecId',
                     'InventTransIdFg',
                     'ItemId',
+                    'transDate',
+                    'PickCode',
                     'ItemName',
                     'Qty',
                     'Unit',
