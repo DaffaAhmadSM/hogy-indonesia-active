@@ -167,7 +167,7 @@ class InventInMainController extends Controller
                 'currencyCode',
                 'price',
                 'amount',
-                'notes',
+                'Notes',
                 'PackCode'
             ])->withQueryString();
 

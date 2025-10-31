@@ -66,6 +66,7 @@ class InventOutMainController extends Controller
                     'transDate',
                     'PickCode',
                     'ItemName',
+                    'Notes',
                     'Qty',
                     'Unit',
                     'DocBc',
@@ -213,7 +214,7 @@ class InventOutMainController extends Controller
                 'currencyCode',
                 'price',
                 'amount',
-                'notes',
+                'Notes',
                 'PickCode'
             ])->withQueryString();
         // return response()->json($prod_receipt);

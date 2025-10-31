@@ -15,7 +15,7 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->unit }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->price }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->amount }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->notes }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->Notes }}</td>
     </tr>
 @endforeach
 @if ($prod_receipt->hasMorePages())

@@ -34,7 +34,7 @@
                     <td>{{ $item->unit }}</td>
                     <td>{{ $item->price }}</td>
                     <td>{{ $item->amount }}</td>
-                    <td>{{ $item->notes }}</td>
+                    <td>{{ $item->Notes }}</td>
                 </tr>
             @endforeach
         </tbody>

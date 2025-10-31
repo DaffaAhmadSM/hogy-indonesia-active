@@ -75,7 +75,7 @@ class ExportInvtOutMain implements FromView, ShouldQueue
                 'currencyCode',
                 'price',
                 'amount',
-                'notes',
+                'Notes',
                 'PickCode'
             ]);
 

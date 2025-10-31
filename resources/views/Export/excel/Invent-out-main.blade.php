@@ -9,7 +9,7 @@
             <th>No Daftar</th>
             <th>Tgl Daftar</th>
             <th>Nomor</th>
-            <th>Tgl Terima</th>
+            <th>Tgl Kirim</th>
             <th>Penerima</th>
             <th>Kode barang</th>
             <th>Nama barang</th>
@@ -38,7 +38,7 @@
                 <td>{{ $item->unit }}</td>
                 <td>{{ $item->price }}</td>
                 <td>{{ $item->amount }}</td>
-                <td>{{ $item->notes }}</td>
+                <td>{{ $item->Notes }}</td>
             </tr>
         @endforeach
     </tbody>

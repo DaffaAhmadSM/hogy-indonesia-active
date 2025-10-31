@@ -293,7 +293,7 @@
 						<th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
 						<th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
 						<th class="px-3 py-2 whitespace-normal break-words">Nomor</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Tgl Terima</th>
+						<th class="px-3 py-2 whitespace-normal break-words">Tgl Kirim</th>
 						<th class="px-3 py-2 whitespace-normal break-words">Pengirim</th>
 						<th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
 						<th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
