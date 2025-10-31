@@ -19,11 +19,10 @@ class ProductV extends Model
         );
     }
 
-    // Accessor for the 'difference' calculation
     protected function selisih(): Attribute
     {
         return Attribute::make(
-            get: fn() => round($this->stockOphname - $this->saldo_buku, 2)
+            get: fn() => round($this->stockOphname == 0 ? abs($this->saldo_buku) : $this->stockOphname - $this->saldo_buku, 2)
         );
     }
 }
