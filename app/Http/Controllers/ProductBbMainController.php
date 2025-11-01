@@ -180,8 +180,7 @@ class ProductBbMainController extends Controller
                 ", [$fromDate])
                 ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
                 ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
-                ->selectRaw("ROUND(sto.adjustedQty, 4) as stockOphname")
-
+                ->selectRaw("ROUND(COALESCE(SUM(sto.adjustedQty), 0), 4) as stockOphname")
 
                 // LEFT JOIN to include products even if they have no transactions
                 ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
@@ -194,8 +193,7 @@ class ProductBbMainController extends Controller
                     $join->on('product_v.productId', '=', 'sto.productId')
                         ->where('sto.warehouseId', '=', $warehouseId)
                         ->where('sto.posted', '=', 1)
-                        ->where('sto.transDate', '<=', $toDate)
-;
+                        ->whereBetween('sto.transDate', [$fromDate, $toDate]);
                 })
 
                 // Filter products and transactions
