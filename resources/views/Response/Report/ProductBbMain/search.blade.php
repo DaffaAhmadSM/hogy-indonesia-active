@@ -8,7 +8,7 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->keluar }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->saldo_buku }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->stockOphname }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->stockOphname ?? 0 }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->selisih }}</td>
 
     </tr>

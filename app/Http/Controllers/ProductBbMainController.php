@@ -71,9 +71,9 @@ class ProductBbMainController extends Controller
 
         // 3. Masukkan ekspor ke dalam antrian
         $fromDateToDate = $fromDate . "-" . $toDate;
-        
+
         $path = 'reports/';
-        $fileName ='products-' . $type . '-' . $fromDateToDate . '.xlsx';
+        $fileName = 'products-' . $type . '-' . $fromDateToDate . '.xlsx';
         $fullPathName = $path . $fileName;
 
         $toast = [
@@ -180,21 +180,37 @@ class ProductBbMainController extends Controller
                 ", [$fromDate])
                 ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
                 ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
-                ->selectRaw("ROUND(COALESCE(SUM(sto.adjustedQty), 0), 4) as stockOphname")
+                ->selectRaw("ROUND(sto.adjustedQty, 4) as stockOphname")
+
 
                 // LEFT JOIN to include products even if they have no transactions
                 ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
                     $join->on('product_v.productId', '=', 'trans.productId')
                         ->where('trans.warehouseCode', '=', $warehouseId);
                 })
-
-                // LEFT JOIN for stock opname data, with multiple conditions
-                ->leftJoin('stockoph_v as sto', function ($join) use ($warehouseId, $fromDate, $toDate) {
-                    $join->on('product_v.productId', '=', 'sto.productId')
-                        ->where('sto.warehouseId', '=', $warehouseId)
-                        ->where('sto.posted', '=', 1)
-                        ->whereBetween('sto.transDate', [$fromDate, $toDate]);
-                })
+                ->leftJoinSub(
+                    DB::table('stockoph_v as s')
+                        ->select('s.productId', 's.adjustedQty', 's.transDate')
+                        ->where('s.warehouseId', $warehouseId)
+                        ->where('s.posted', 1)
+                        ->where('s.transDate', '<=', $toDate)
+                        // correlated subquery to pick the max transDate per product matching the filters
+                        ->whereRaw(
+                            's.transDate = (
+                                select max(s2.transDate)
+                                from stockoph_v s2
+                                where s2.productId = s.productId
+                                  and s2.warehouseId = ?
+                                  and s2.posted = 1
+                                  and s2.transDate <= ?
+                            )',
+                            [$warehouseId, $toDate]
+                        ),
+                    'sto',
+                    function ($join) {
+                        $join->on('product_v.productId', '=', 'sto.productId');
+                    }
+                )
 
                 // Filter products and transactions
                 ->whereIn('product_v.productType', $productType)
