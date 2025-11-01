@@ -163,56 +163,61 @@ class ProductBbMainController extends Controller
         // 4. QUERY EXECUTION & PAGINATION (WRAPPED IN CACHE)
         $products = Cache::remember($cacheKey, 300, function () use ($request, $validated, $fromDate, $toDate, $warehouseId, $productType, $keyword, $searchTerm) {
 
-            // Build the SINGLE, efficient query starting from the Product model
+            // --- Subquery 1: Pre-aggregate all transactions ---
+            $transSubQuery = DB::table('prodtr_v as trans')
+                ->select('trans.productId')
+                ->selectRaw("
+           ROUND(COALESCE(SUM(CASE 
+                WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked') 
+                THEN trans.originalQty 
+                ELSE 0 
+            END), 0), 4) as saldoAwal
+        ", [$fromDate])
+                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
+                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
+                ->where('trans.warehouseCode', $warehouseId)
+                // Optimization: only scan relevant transactions
+                ->where('trans.transDate', '<=', $toDate)
+                ->groupBy('trans.productId');
+
+            // --- Subquery 2: Get the latest stock opname (fast) ---
+            $stoSubQuery = DB::query()
+                ->fromSub(
+                    DB::table('stockoph_v as s')
+                        ->select('s.productId', 's.adjustedQty')
+                        ->selectRaw(
+                            'ROW_NUMBER() OVER(PARTITION BY s.productId ORDER BY s.transDate DESC) as rn'
+                        )
+                        ->where('s.warehouseId', $warehouseId)
+                        ->where('s.posted', 1)
+                        ->where('s.transDate', '<=', $toDate),
+                    'ranked_sto'
+                )
+                ->select('productId', 'adjustedQty')
+                ->where('rn', 1);
+
+            // --- Main Query: Join products to the small, pre-aggregated subqueries ---
             $query = ProductV::query()
                 ->select([
                     'product_v.productId',
                     'product_v.productName',
                     'product_v.unitId',
                 ])
-                // Use selectRaw to perform calculations securely with parameter binding
-                ->selectRaw("
-                   ROUND(COALESCE(SUM(CASE 
-                        WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked') 
-                        THEN trans.originalQty 
-                        ELSE 0 
-                    END), 0), 4) as saldoAwal
-                ", [$fromDate])
-                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
-                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
-                ->selectRaw("ROUND(COALESCE(MAX(sto.adjustedQty), 0), 4) as stockOphname")
+                // Select the pre-calculated values from the subqueries
+                ->selectRaw("ROUND(COALESCE(trans.saldoAwal, 0), 4) as saldoAwal")
+                ->selectRaw("ROUND(COALESCE(trans.masuk, 0), 4) as masuk")
+                ->selectRaw("ROUND(COALESCE(trans.keluar, 0), 4) as keluar")
+                ->selectRaw("ROUND(COALESCE(sto.adjustedQty, 0), 4) as stockOphname")
 
-
-                // LEFT JOIN to include products even if they have no transactions
-                ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
-                    $join->on('product_v.productId', '=', 'trans.productId')
-                        ->where('trans.warehouseCode', '=', $warehouseId);
+                // Join the main product table to the small summary tables
+                ->leftJoinSub($transSubQuery, 'trans', function ($join) {
+                    $join->on('product_v.productId', '=', 'trans.productId');
                 })
-                ->leftJoinSub(
-                    DB::table('stockoph_v as s')
-                        ->select('s.productId', 's.adjustedQty', 's.transDate')
-                        ->where('s.warehouseId', $warehouseId)
-                        ->where('s.posted', 1)
-                        ->where('s.transDate', '<=', $toDate)
-                        // correlated subquery to pick the max transDate per product matching the filters
-                        ->whereRaw(
-                            's.transDate = (
-                                select max(s2.transDate)
-                                from stockoph_v s2
-                                where s2.productId = s.productId
-                                  and s2.warehouseId = ?
-                                  and s2.posted = 1
-                                  and s2.transDate <= ?
-                            )',
-                            [$warehouseId, $toDate]
-                        ),
-                    'sto',
-                    function ($join) {
-                        $join->on('product_v.productId', '=', 'sto.productId');
-                    }
-                )
+                ->leftJoinSub($stoSubQuery, 'sto', function ($join) {
+                    $join->on('product_v.productId', '=', 'sto.productId');
+                })
 
-                // Filter products and transactions
+                // Filter products
                 ->whereIn('product_v.productType', $productType)
 
                 // Apply keyword search if provided
@@ -224,17 +229,13 @@ class ProductBbMainController extends Controller
                     });
                 })
 
-                ->orderBy('product_v.productId', 'asc')
+                ->orderBy('product_v.productId', 'asc');
 
-                // Group by the product fields to make SUM() work correctly
-                ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId');
+            // ** NO GROUP BY IS NEEDED ** on the main query,
+            // because the aggregation already happened in the subqueries.
 
             // Paginate the final results
             $paginatedProducts = $query->cursorPaginate(400);
-
-            // ** THE FIX **
-            // Append the validated filter values to the pagination links.
-            // This ensures that when you click "next", the filters are included in the URL.
             $paginatedProducts->withQueryString();
 
             return $paginatedProducts;
