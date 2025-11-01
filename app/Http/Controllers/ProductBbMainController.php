@@ -180,21 +180,24 @@ class ProductBbMainController extends Controller
                 ->where('trans.transDate', '<=', $toDate)
                 ->groupBy('trans.productId');
 
+            $latestDatesQuery = DB::table('stockoph_v')
+                ->select('productId', DB::raw('MAX(transDate) as max_date'))
+                ->where('warehouseId', $warehouseId)
+                ->where('posted', 1)
+                ->where('transDate', '<=', $toDate)
+                ->groupBy('productId');
+
             // --- Subquery 2: Get the latest stock opname (fast) ---
-            $stoSubQuery = DB::query()
-                ->fromSub(
-                    DB::table('stockoph_v as s')
-                        ->select('s.productId', 's.adjustedQty')
-                        ->selectRaw(
-                            'ROW_NUMBER() OVER(PARTITION BY s.productId ORDER BY s.transDate DESC) as rn'
-                        )
-                        ->where('s.warehouseId', $warehouseId)
-                        ->where('s.posted', 1)
-                        ->where('s.transDate', '<=', $toDate),
-                    'ranked_sto'
-                )
-                ->select('productId', 'adjustedQty')
-                ->where('rn', 1);
+            $stoSubQuery = DB::table('stockoph_v as s')
+                ->select('s.productId', 's.adjustedQty')
+                // Join the stock table (s) to the latest dates query
+                ->joinSub($latestDatesQuery, 'latest', function ($join) {
+                    $join->on('s.productId', '=', 'latest.productId')
+                        ->on('s.transDate', '=', 'latest.max_date');
+                })
+                // We must repeat these WHERE clauses so the DB can use indexes
+                ->where('s.warehouseId', $warehouseId)
+                ->where('s.posted', 1);
 
             // --- Main Query: Join products to the small, pre-aggregated subqueries ---
             $query = ProductV::query()
