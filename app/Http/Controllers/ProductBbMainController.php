@@ -63,7 +63,11 @@ class ProductBbMainController extends Controller
         // $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
         $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
         $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
-        $warehouseId = $validated['warehouseId'] ?? 'WH';
+        if($type == "BARANG_JADI"){
+            $warehouseId = 'FGS';
+        }else {
+            $warehouseId = $validated['warehouseId'] ?? 'WH';
+        }
         $productType = $type ?: 'BAHAN_BAKU';
         $keyword = $validated['keyword'] ?? null;
 
@@ -71,7 +75,7 @@ class ProductBbMainController extends Controller
 
         // 3. Masukkan ekspor ke dalam antrian
         $fromDateToDate = $fromDate . "-" . $toDate;
-        
+
         $path = 'reports/';
         $fileName ='products-' . $type . '-' . $fromDateToDate . '.xlsx';
         $fullPathName = $path . $fileName;
@@ -145,7 +149,12 @@ class ProductBbMainController extends Controller
         // $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
         $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
         $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
-        $warehouseId = $validated['warehouseId'] ?? 'WH';
+        $warehouseId = '';
+        if($type == "BARANG_JADI"){
+            $warehouseId = 'FGS';
+        }else {
+            $warehouseId = $validated['warehouseId'] ?? 'WH';
+        }
         $productType = $type ?: 'BAHAN_BAKU'; // Use URL type, with a fallback
         $keyword = $validated['keyword'] ?? null;
         $searchTerm = '%' . $keyword . '%';
@@ -172,10 +181,10 @@ class ProductBbMainController extends Controller
                 ])
                 // Use selectRaw to perform calculations securely with parameter binding
                 ->selectRaw("
-                   ROUND(COALESCE(SUM(CASE 
-                        WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked') 
-                        THEN trans.originalQty 
-                        ELSE 0 
+                   ROUND(COALESCE(SUM(CASE
+                        WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked')
+                        THEN trans.originalQty
+                        ELSE 0
                     END), 0), 4) as saldoAwal
                 ", [$fromDate])
                 ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
