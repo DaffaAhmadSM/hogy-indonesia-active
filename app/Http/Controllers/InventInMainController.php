@@ -90,12 +90,11 @@ class InventInMainController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate')) : Carbon::now();
-        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate')) : Carbon::now();
+        $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->toDateString() : Carbon::now();
+        $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->toDateString() : Carbon::now();
         $keywords = $request->input('keyword');
 
-        $fileName = 'Laporan_Pemasukan_Barang_' . ($fromDate->toDateString() ?? '') . '_' . ($toDate->toDateString() ?? '') . '.xlsx';
+        $fileName = 'Laporan_Pemasukan_Barang_' . ($fromDate ?? '') . '_' . ($toDate ?? '') . '.xlsx';
         $path = 'reports/';
         $fullPathName = $path . $fileName;
 

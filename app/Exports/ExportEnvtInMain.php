@@ -22,7 +22,7 @@ class ExportEnvtInMain implements FromView, ShouldQueue
     protected $keywords;
 
 
-    public function __construct(Carbon $fromDate, Carbon $toDate, $keywords)
+    public function __construct(String $fromDate, String $toDate, $keywords)
     {
         $this->fromDate = $fromDate;
         $this->toDate = $toDate;
