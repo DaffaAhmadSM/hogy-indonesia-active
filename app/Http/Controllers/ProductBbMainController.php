@@ -181,15 +181,15 @@ class ProductBbMainController extends Controller
                 ])
                 // Use selectRaw to perform calculations securely with parameter binding
                 ->selectRaw("
-                   ROUND(COALESCE(SUM(CASE
+                   CAST(COALESCE(SUM(CASE
                         WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked')
                         THEN trans.originalQty
                         ELSE 0
-                    END), 0), 4) as saldoAwal
+                    END), 0) AS DECIMAL(15,3)) as saldoAwal
                 ", [$fromDate])
-                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$fromDate, $toDate])
-                ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$fromDate, $toDate])
-                ->selectRaw("ROUND(COALESCE(SUM(sto.adjustedQty), 0), 4) as stockOphname")
+                ->selectRaw("CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0) AS DECIMAL(15,3)) as masuk", [$fromDate, $toDate])
+                ->selectRaw("CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0) AS DECIMAL(15,3)) as keluar", [$fromDate, $toDate])
+                ->selectRaw("CAST(COALESCE(SUM(sto.adjustedQty), 0) AS DECIMAL(15,3)) as stockOphname")
 
                 // LEFT JOIN to include products even if they have no transactions
                 ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {

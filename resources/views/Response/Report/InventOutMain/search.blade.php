@@ -13,8 +13,8 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->ItemName }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->qty }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->unit }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->price }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->amount }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->price, 3, '.', '') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->amount, 3, '.', '') }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->Notes }}</td>
     </tr>
 @endforeach

@@ -15,7 +15,7 @@ class ProductV extends Model
     protected function saldoBuku(): Attribute
     {
         return Attribute::make(
-            get: fn() => round(($this->saldoAwal + $this->masuk) - $this->keluar, 2)
+            get: fn() => ($this->saldoAwal + $this->masuk) - $this->keluar
         );
     }
 
