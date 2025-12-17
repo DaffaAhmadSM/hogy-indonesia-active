@@ -180,16 +180,17 @@ class ProductBbMainController extends Controller
                     'product_v.unitId',
                 ])
                 // Use selectRaw to perform calculations securely with parameter binding
+                // Apply ABS() to ensure all values are positive (matching C# reference)
                 ->selectRaw("
-                   CAST(COALESCE(SUM(CASE
+                   ABS(CAST(COALESCE(SUM(CASE
                         WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked')
                         THEN trans.originalQty
                         ELSE 0
-                    END), 0) AS DECIMAL(15,3)) as saldoAwal
+                    END), 0) AS DECIMAL(15,3))) as saldoAwal
                 ", [$fromDate])
-                ->selectRaw("CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0) AS DECIMAL(15,3)) as masuk", [$fromDate, $toDate])
-                ->selectRaw("CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0) AS DECIMAL(15,3)) as keluar", [$fromDate, $toDate])
-                ->selectRaw("CAST(COALESCE(SUM(sto.adjustedQty), 0) AS DECIMAL(15,3)) as stockOphname")
+                ->selectRaw("ABS(CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0) AS DECIMAL(15,3))) as masuk", [$fromDate, $toDate])
+                ->selectRaw("ABS(CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0) AS DECIMAL(15,3))) as keluar", [$fromDate, $toDate])
+                ->selectRaw("ABS(CAST(COALESCE(SUM(sto.adjustedQty), 0) AS DECIMAL(15,3))) as stockOphname")
 
                 // LEFT JOIN to include products even if they have no transactions
                 ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
@@ -231,6 +232,17 @@ class ProductBbMainController extends Controller
             $paginatedProducts->withQueryString();
 
             return $paginatedProducts;
+        });
+
+        // Calculate additional fields (saldoBuku and selisih) like in C# reference
+        $products->getCollection()->transform(function ($product) {
+            // SaldoBuku = (SaldoAwal + Masuk) - Keluar
+            $product->saldoBuku = round(($product->saldoAwal + $product->masuk) - $product->keluar, 3);
+            
+            // Selisih = StockOphname - SaldoBuku
+            $product->selisih = round($product->stockOphname - $product->saldoBuku, 3);
+            
+            return $product;
         });
 
         // return response()->json($products);

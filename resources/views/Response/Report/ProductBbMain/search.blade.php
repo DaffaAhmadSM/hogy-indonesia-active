@@ -3,13 +3,13 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->productId }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->productName	 }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->unitId}}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->saldoAwal }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->masuk }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->keluar }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->saldo_buku, 3, '.', '') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->saldoAwal, 3, '.', ',') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->masuk, 3, '.', ',') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->keluar, 3, '.', ',') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">0.000</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->saldoBuku, 3, '.', ',') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->stockOphname, 3, '.', ',') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->selisih, 3, '.', ',') }}</td>
 
     </tr>
 @endforeach
