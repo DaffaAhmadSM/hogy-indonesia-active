@@ -2,17 +2,15 @@
 
 namespace App\Exports;
 
-use App\Models\ProductV; // Sesuaikan dengan path model Anda
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithCustomQuerySize;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Illuminate\Support\Facades\DB;
 
 
-class ExportProductBB implements FromQuery, WithHeadings, WithMapping, ShouldQueue, WithCustomQuerySize
+class ExportProductBB implements FromCollection, WithHeadings, ShouldQueue
 {
     use Exportable;
 
@@ -35,55 +33,104 @@ class ExportProductBB implements FromQuery, WithHeadings, WithMapping, ShouldQue
     }
 
     /**
-     * Metode ini akan menjalankan query utama Anda.
-     * Laravel Excel akan secara otomatis melakukan chunking pada hasil query ini,
-     * sehingga sangat efisien dalam penggunaan memori.
+     * Match C# logic: Get products first, then query transactions for each (N+1 pattern)
      */
-    public function query()
+    public function collection()
     {
         $searchTerm = '%' . $this->keyword . '%';
 
-        // Logika query sama persis dengan yang Anda miliki, tanpa paginasi
-        return ProductV::query()
-            ->select([
-                'product_v.productId',
-                'product_v.productName',
-                'product_v.unitId',
-            ])
-            ->selectRaw("
-               ROUND(COALESCE(SUM(CASE 
-                    WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked') 
-                    THEN trans.originalQty 
-                    ELSE 0 
-                END), 0), 4) as saldoAwal
-            ", [$this->fromDate])
-            ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0), 4) as masuk", [$this->fromDate, $this->toDate])
-            ->selectRaw("ROUND(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0), 4) as keluar", [$this->fromDate, $this->toDate])
-            ->selectRaw("ROUND(COALESCE(SUM(sto.adjustedQty), 0), 4) as stockOphname")
-            ->leftJoin('prodtr_v as trans', function ($join) {
-                $join->on('product_v.productId', '=', 'trans.productId')
-                    ->where('trans.warehouseCode', '=', $this->warehouseId);
-            })
-            ->leftJoin('stockoph_v as sto', function ($join) {
-                $join->on('product_v.productId', '=', 'sto.productId')
-                    ->where('sto.warehouseId', '=', $this->warehouseId)
-                    ->where('sto.posted', '=', 1)
-                    ->whereBetween('sto.transDate', [$this->fromDate, $this->toDate]);
-            })
-            ->whereIn('product_v.productType', $this->productType)
-            ->when($this->keyword, function ($query) use ($searchTerm) {
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('product_v.productId', 'like', $searchTerm)
-                        ->orWhere('product_v.productName', 'like', $searchTerm)
-                        ->orWhere('product_v.unitId', 'like', $searchTerm);
-                });
-            })
-            ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId')
-            ->orderBy('product_v.productId', 'asc');
+        // 1. Get list of products (like C# ProductDao.Instance.findListLike)
+        $query = DB::table('product_v')
+            ->select('productId', 'productName', 'unitId', 'productType')
+            ->whereIn('productType', $this->productType);
+
+        // Apply keyword search if provided
+        if ($this->keyword) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('productId', 'like', $searchTerm)
+                    ->orWhere('productName', 'like', $searchTerm)
+                    ->orWhere('unitId', 'like', $searchTerm);
+            });
+        }
+
+        $query->orderBy('productId', 'asc');
+
+        $products = $query->get();
+
+        // 2. For each product, calculate transaction data (N+1 pattern like C#)
+        $results = $products->map(function ($product) {
+            // Saldo Awal
+            $saldoAwal = DB::table('prodtr_v')
+                ->where('warehouseCode', $this->warehouseId)
+                ->where('productId', $product->productId)
+                ->where('transDate', '<', $this->fromDate)
+                ->whereIn('type', ['InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked'])
+                ->sum('originalQty');
+            
+            $saldoAwal = abs($saldoAwal ?? 0);
+
+            // Masuk (In)
+            $masuk = DB::table('prodtr_v')
+                ->where('warehouseCode', $this->warehouseId)
+                ->where('productId', $product->productId)
+                ->whereBetween('transDate', [$this->fromDate, $this->toDate])
+                ->whereIn('type', ['InvAdjust_In', 'Po_Picked'])
+                ->sum('originalQty');
+            
+            $masuk = abs($masuk ?? 0);
+
+            // Keluar (Out)
+            $keluar = DB::table('prodtr_v')
+                ->selectRaw('ABS(SUM(originalQty)) as qtyOut')
+                ->where('warehouseCode', $this->warehouseId)
+                ->where('productId', $product->productId)
+                ->whereBetween('transDate', [$this->fromDate, $this->toDate])
+                ->whereIn('type', ['InvAdjust_Out', 'So_Picked'])
+                ->value('qtyOut');
+            
+            $keluar = abs($keluar ?? 0);
+
+            // Stock Opname
+            $stockOphname = DB::table('stockoph_v')
+                ->where('productId', $product->productId)
+                ->where('warehouseId', $this->warehouseId)
+                ->where('posted', 1)
+                ->whereBetween('transDate', [$this->fromDate, $this->toDate])
+                ->sum('adjustedQty');
+            
+            $stockOphname = abs($stockOphname ?? 0);
+
+            // Apply abs to ensure positive values (matching C# Math.Abs())
+            $saldoAwal = abs($saldoAwal);
+            $masuk = abs($masuk);
+            $keluar = abs($keluar);
+            $penyesuaian = 0; // C# sets this to 0
+            $stockOphname = abs($stockOphname);
+
+            // SaldoBuku = (SaldoAwal + Masuk) - Keluar
+            $saldoBuku = round(($saldoAwal + round($masuk, 2)) - round($keluar, 2), 3);
+
+            // Selisih = StockOphname - SaldoBuku
+            $selisih = round($stockOphname - $saldoBuku, 3);
+
+            return [
+                $product->productId,
+                $product->productName,
+                $product->unitId,
+                $saldoAwal,
+                $masuk,
+                $keluar,
+                $stockOphname,
+                $saldoBuku,
+                $selisih,
+            ];
+        });
+
+        return $results;
     }
 
     /**
-     * Metode ini mendefinisikan baris header untuk file CSV Anda.
+     * Metode ini mendefinisikan baris header untuk file Excel Anda.
      */
     public function headings(): array
     {
@@ -95,58 +142,8 @@ class ExportProductBB implements FromQuery, WithHeadings, WithMapping, ShouldQue
             'Masuk',
             'Keluar',
             'Stock Opname',
-            'Saldo Akhir',
-        ];
-    }
-
-    public function querySize(): int
-    {
-        $searchTerm = '%' . $this->keyword . '%';
-        
-        // Hitung total baris yang akan diekspor berdasarkan filter
-        $query = ProductV::query()
-            ->leftJoin('prodtr_v as trans', function ($join) {
-                $join->on('product_v.productId', '=', 'trans.productId')
-                    ->where('trans.warehouseCode', '=', $this->warehouseId);
-            })
-            ->leftJoin('stockoph_v as sto', function ($join) {
-                $join->on('product_v.productId', '=', 'sto.productId')
-                    ->where('sto.warehouseId', '=', $this->warehouseId)
-                    ->where('sto.posted', '=', 1)
-                    ->whereBetween('sto.transDate', [$this->fromDate, $this->toDate]);
-            })
-            ->whereIn('product_v.productType', $this->productType)
-            ->when($this->keyword, function ($query) use ($searchTerm) {
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('product_v.productId', 'like', $searchTerm)
-                        ->orWhere('product_v.productName', 'like', $searchTerm)
-                        ->orWhere('product_v.unitId', 'like', $searchTerm);
-                });
-            })
-            ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId')
-            ->orderBy('product_v.productId', 'asc');
-        return $query->count();
-    }
-
-    /**
-     * Metode ini memetakan setiap baris data dari query.
-     * Anda bisa melakukan transformasi data atau kalkulasi tambahan di sini.
-     * @param mixed $product
-     */
-    public function map($product): array
-    {
-        // Hitung Saldo Akhir di sini
-        $saldoAkhir = ($product->saldoAwal + $product->masuk) - $product->keluar + $product->stockOphname;
-
-        return [
-            $product->productId,
-            $product->productName,
-            $product->unitId,
-            $product->saldoAwal,
-            $product->masuk,
-            $product->keluar,
-            $product->stockOphname,
-            round($saldoAkhir, 4), // Saldo akhir yang sudah dihitung
+            'Saldo Buku',
+            'Selisih',
         ];
     }
 }
