@@ -172,63 +172,79 @@ class ProductBbMainController extends Controller
         // 4. QUERY EXECUTION & PAGINATION (WRAPPED IN CACHE)
         $products = Cache::remember($cacheKey, 300, function () use ($request, $validated, $fromDate, $toDate, $warehouseId, $productType, $keyword, $searchTerm) {
 
-            // Build the SINGLE, efficient query starting from the Product model
-            $query = ProductV::query()
+            // Match C# logic: Start from transactions table, not products table
+            // This ensures we only get products that have actual transactions
+            $query = DB::table('prodtr_v as trans')
                 ->select([
-                    'product_v.productId',
-                    'product_v.productName',
-                    'product_v.unitId',
+                    'trans.productId',
+                    'trans.productName',
+                    'trans.unitId',
                 ])
-                // Use selectRaw to perform calculations securely with parameter binding
-                // Apply ABS() to ensure all values are positive (matching C# reference)
+                // Saldo Awal: transactions before fromDate
                 ->selectRaw("
-                   ABS(CAST(COALESCE(SUM(CASE
-                        WHEN trans.transDate < ? AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked')
+                   ABS(COALESCE(SUM(CASE
+                        WHEN trans.transDate < ? 
+                        AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked')
                         THEN trans.originalQty
                         ELSE 0
-                    END), 0) AS DECIMAL(15,3))) as saldoAwal
+                    END), 0)) as saldoAwal
                 ", [$fromDate])
-                ->selectRaw("ABS(CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_In', 'Po_Picked') THEN trans.originalQty ELSE 0 END), 0) AS DECIMAL(15,3))) as masuk", [$fromDate, $toDate])
-                ->selectRaw("ABS(CAST(COALESCE(SUM(CASE WHEN trans.transDate BETWEEN ? AND ? AND trans.type IN ('InvAdjust_Out', 'So_Picked') THEN ABS(trans.originalQty) ELSE 0 END), 0) AS DECIMAL(15,3))) as keluar", [$fromDate, $toDate])
-                ->selectRaw("ABS(CAST(COALESCE(SUM(sto.adjustedQty), 0) AS DECIMAL(15,3))) as stockOphname")
-
-                // LEFT JOIN to include products even if they have no transactions
-                ->leftJoin('prodtr_v as trans', function ($join) use ($warehouseId) {
-                    $join->on('product_v.productId', '=', 'trans.productId')
-                        ->where('trans.warehouseCode', '=', $warehouseId);
-                })
-
-                // LEFT JOIN for stock opname data, with multiple conditions
+                // Masuk: incoming transactions in date range
+                ->selectRaw("
+                    ABS(COALESCE(SUM(CASE 
+                        WHEN trans.transDate BETWEEN ? AND ? 
+                        AND trans.type IN ('InvAdjust_In', 'Po_Picked') 
+                        THEN trans.originalQty 
+                        ELSE 0 
+                    END), 0)) as masuk
+                ", [$fromDate, $toDate])
+                // Keluar: outgoing transactions in date range
+                ->selectRaw("
+                    ABS(COALESCE(SUM(CASE 
+                        WHEN trans.transDate BETWEEN ? AND ? 
+                        AND trans.type IN ('InvAdjust_Out', 'So_Picked') 
+                        THEN trans.originalQty 
+                        ELSE 0 
+                    END), 0)) as keluar
+                ", [$fromDate, $toDate])
+                // Stock Opname: LEFT JOIN to get stock opname data
+                ->selectRaw("COALESCE(SUM(sto.adjustedQty), 0) as stockOphname")
+                
+                // JOIN with product table to get product type for filtering
+                ->join('product_v', 'trans.productId', '=', 'product_v.productId')
+                
+                // LEFT JOIN for stock opname (may not exist for all products)
                 ->leftJoin('stockoph_v as sto', function ($join) use ($warehouseId, $fromDate, $toDate) {
-                    $join->on('product_v.productId', '=', 'sto.productId')
+                    $join->on('trans.productId', '=', 'sto.productId')
                         ->where('sto.warehouseId', '=', $warehouseId)
                         ->where('sto.posted', '=', 1)
                         ->whereBetween('sto.transDate', [$fromDate, $toDate]);
                 })
-
-                // Filter products and transactions
+                
+                // Filter by warehouse (matching C# logic)
+                ->where('trans.warehouseCode', '=', $warehouseId)
+                
+                // Filter by product type
                 ->whereIn('product_v.productType', $productType)
 
                 // Apply keyword search if provided
                 ->when($keyword, function ($query) use ($searchTerm) {
                     $query->where(function ($q) use ($searchTerm) {
-                        $q->where('product_v.productId', 'like', $searchTerm)
-                            ->orWhere('product_v.productName', 'like', $searchTerm)
-                            ->orWhere('product_v.unitId', 'like', $searchTerm);
+                        $q->where('trans.productId', 'like', $searchTerm)
+                            ->orWhere('trans.productName', 'like', $searchTerm)
+                            ->orWhere('trans.unitId', 'like', $searchTerm);
                     });
                 })
 
-                ->orderBy('product_v.productId', 'asc')
-
-                // Group by the product fields to make SUM() work correctly
-                ->groupBy('product_v.productId', 'product_v.productName', 'product_v.unitId');
+                // Group by product (matching C# logic)
+                ->groupBy('trans.productId', 'trans.productName', 'trans.unitId')
+                
+                ->orderBy('trans.productId', 'asc');
 
             // Paginate the final results
             $paginatedProducts = $query->cursorPaginate(400);
 
-            // ** THE FIX **
-            // Append the validated filter values to the pagination links.
-            // This ensures that when you click "next", the filters are included in the URL.
+            // Append the validated filter values to the pagination links
             $paginatedProducts->withQueryString();
 
             return $paginatedProducts;
@@ -236,8 +252,14 @@ class ProductBbMainController extends Controller
 
         // Calculate additional fields (saldoBuku and selisih) like in C# reference
         $products->getCollection()->transform(function ($product) {
+            // Apply ABS to ensure positive values (matching C# Math.Abs())
+            $product->saldoAwal = abs($product->saldoAwal);
+            $product->masuk = abs($product->masuk);
+            $product->keluar = abs($product->keluar);
+            $product->stockOphname = abs($product->stockOphname);
+            
             // SaldoBuku = (SaldoAwal + Masuk) - Keluar
-            $product->saldoBuku = round(($product->saldoAwal + $product->masuk) - $product->keluar, 3);
+            $product->saldoBuku = round(($product->saldoAwal + round($product->masuk, 2)) - round($product->keluar, 2), 3);
             
             // Selisih = StockOphname - SaldoBuku
             $product->selisih = round($product->stockOphname - $product->saldoBuku, 3);
