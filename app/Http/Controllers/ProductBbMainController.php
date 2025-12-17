@@ -135,6 +135,7 @@ class ProductBbMainController extends Controller
             'toDate' => 'nullable|date_format:Y-m-d|after_or_equal:fromDate',
             'keyword' => 'nullable|string|max:255',
             'warehouseId' => 'nullable|string|max:50',
+            // 'productType' is from the URL, so no need to validate it from request input
         ]);
 
         if ($validator->fails()) {
@@ -144,6 +145,8 @@ class ProductBbMainController extends Controller
         $validated = $validator->validated();
 
         // 2. SET DEFAULTS & GET INPUTS
+        // Use the validated data, falling back to defaults if not present.
+        // $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
         $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
         $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
         $warehouseId = '';
@@ -152,115 +155,121 @@ class ProductBbMainController extends Controller
         }else {
             $warehouseId = $validated['warehouseId'] ?? 'WH';
         }
-        $productType = $type ?: 'BAHAN_BAKU';
+        $productType = $type ?: 'BAHAN_BAKU'; // Use URL type, with a fallback
         $keyword = $validated['keyword'] ?? null;
         $searchTerm = '%' . $keyword . '%';
 
+
+        // 3. CACHE KEY (IMPROVED LOGIC)
+        // The cache key should be consistent for the same query, but unique per page.
+        // We include all filters and the current cursor to make it unique.
+        $cursor = $request->input('cursor', 'first_page');
+        $cacheKey = "product_bb_main_{$fromDate}_{$toDate}_{$warehouseId}_{$productType}_" . md5($keyword ?? '') . "_{$cursor}";
+
+
         $productType = explode(';', $productType);
 
-        // REPLICATE C# N+1 PATTERN EXACTLY
-        // Step 1: Get all products from product_v (like C# ProductDao.Instance.findListLike())
-        $productsQuery = DB::table('product_v')
-            ->select(['productId', 'productName', 'unitId'])
-            ->whereIn('productType', $productType);
+        // 4. QUERY EXECUTION & PAGINATION (WRAPPED IN CACHE)
+        $products = Cache::remember($cacheKey, 300, function () use ($request, $validated, $fromDate, $toDate, $warehouseId, $productType, $keyword, $searchTerm) {
 
-        // Apply keyword search if provided
-        if ($keyword) {
-            $productsQuery->where(function ($q) use ($searchTerm) {
-                $q->where('productId', 'like', $searchTerm)
-                  ->orWhere('productName', 'like', $searchTerm)
-                  ->orWhere('unitId', 'like', $searchTerm);
-            });
-        }
+            // Match C# logic: Start from transactions table, not products table
+            // This ensures we only get products that have actual transactions
+            $query = DB::table('prodtr_v as trans')
+                ->select([
+                    'trans.productId',
+                    'trans.productName',
+                    'trans.unitId',
+                ])
+                // Saldo Awal: transactions before fromDate
+                ->selectRaw("
+                   ABS(COALESCE(SUM(CASE
+                        WHEN trans.transDate < ? 
+                        AND trans.type IN ('InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked')
+                        THEN trans.originalQty
+                        ELSE 0
+                    END), 0)) as saldoAwal
+                ", [$fromDate])
+                // Masuk: incoming transactions in date range
+                ->selectRaw("
+                    ABS(COALESCE(SUM(CASE 
+                        WHEN trans.transDate BETWEEN ? AND ? 
+                        AND trans.type IN ('InvAdjust_In', 'Po_Picked') 
+                        THEN trans.originalQty 
+                        ELSE 0 
+                    END), 0)) as masuk
+                ", [$fromDate, $toDate])
+                // Keluar: outgoing transactions in date range
+                ->selectRaw("
+                    ABS(COALESCE(SUM(CASE 
+                        WHEN trans.transDate BETWEEN ? AND ? 
+                        AND trans.type IN ('InvAdjust_Out', 'So_Picked') 
+                        THEN trans.originalQty 
+                        ELSE 0 
+                    END), 0)) as keluar
+                ", [$fromDate, $toDate])
+                // Stock Opname: LEFT JOIN to get stock opname data
+                ->selectRaw("COALESCE(SUM(sto.adjustedQty), 0) as stockOphname")
+                
+                // JOIN with product table to get product type for filtering
+                ->join('product_v', 'trans.productId', '=', 'product_v.productId')
+                
+                // LEFT JOIN for stock opname (may not exist for all products)
+                ->leftJoin('stockoph_v as sto', function ($join) use ($warehouseId, $fromDate, $toDate) {
+                    $join->on('trans.productId', '=', 'sto.productId')
+                        ->where('sto.warehouseId', '=', $warehouseId)
+                        ->where('sto.posted', '=', 1)
+                        ->whereBetween('sto.transDate', [$fromDate, $toDate]);
+                })
+                
+                // Filter by warehouse (matching C# logic)
+                ->where('trans.warehouseCode', '=', $warehouseId)
+                
+                // Filter by product type
+                ->whereIn('product_v.productType', $productType)
 
-        $products = $productsQuery
-            ->orderBy('productId', 'asc')
-            ->limit(400)
-            ->get();
+                // Apply keyword search if provided
+                ->when($keyword, function ($query) use ($searchTerm) {
+                    $query->where(function ($q) use ($searchTerm) {
+                        $q->where('trans.productId', 'like', $searchTerm)
+                            ->orWhere('trans.productName', 'like', $searchTerm)
+                            ->orWhere('trans.unitId', 'like', $searchTerm);
+                    });
+                })
 
-        // Step 2: For EACH product, run separate queries (N+1 pattern, matching C#)
-        $results = collect();
+                // Group by product (matching C# logic)
+                ->groupBy('trans.productId', 'trans.productName', 'trans.unitId')
+                
+                ->orderBy('trans.productId', 'asc');
 
-        foreach ($products as $product) {
-            $rec = (object)[
-                'productId' => $product->productId,
-                'productName' => $product->productName,
-                'unitId' => $product->unitId,
-            ];
+            // Paginate the final results
+            $paginatedProducts = $query->cursorPaginate(400);
 
-            // Query 1: Saldo Awal (opening balance) - matches C# ProductBbDao.cs line 164-184
-            $saldoAwal = DB::table('prodtr_v as v')
-                ->where('v.warehouseCode', '=', $warehouseId)
-                ->where('v.productId', '=', $rec->productId)
-                ->where('v.transDate', '<', $fromDate)
-                ->whereIn('v.type', ['InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked'])
-                ->sum('v.originalQty');
+            // Append the validated filter values to the pagination links
+            $paginatedProducts->withQueryString();
 
-            $rec->saldoAwal = abs($saldoAwal ?? 0);
+            return $paginatedProducts;
+        });
 
-            // Query 2: Masuk (incoming) - matches C# ProductBbDao.cs line 186-207
-            $masuk = DB::table('prodtr_v as v')
-                ->where('v.warehouseCode', '=', $warehouseId)
-                ->where('v.productId', '=', $rec->productId)
-                ->where('v.transDate', '>=', $fromDate)
-                ->where('v.transDate', '<=', $toDate)
-                ->whereIn('v.type', ['InvAdjust_In', 'Po_Picked'])
-                ->sum('v.originalQty');
-
-            $rec->masuk = abs($masuk ?? 0);
-
-            // Query 3: Keluar (outgoing) - matches C# ProductBbDao.cs line 209-230
-            $keluar = DB::table('prodtr_v as v')
-                ->where('v.warehouseCode', '=', $warehouseId)
-                ->where('v.productId', '=', $rec->productId)
-                ->where('v.transDate', '>=', $fromDate)
-                ->where('v.transDate', '<=', $toDate)
-                ->whereIn('v.type', ['InvAdjust_Out', 'So_Picked'])
-                ->sum(DB::raw('ABS(v.originalQty)'));
-
-            $rec->keluar = abs($keluar ?? 0);
-
-            // Query 4: Stock Opname - matches C# ProductBbDao.cs line 246
-            $stockOphname = DB::table('stockoph_v')
-                ->where('productId', '=', $rec->productId)
-                ->where('warehouseId', '=', $warehouseId)
-                ->where('posted', '=', 1)
-                ->whereBetween('transDate', [$fromDate, $toDate])
-                ->sum('adjustedQty');
-
-            $rec->stockOphname = abs($stockOphname ?? 0);
-
-            // Apply calculations (matching C# logic lines 232-250)
-            $rec->penyesuaian = 0;
-
-            // SaldoBuku = (SaldoAwal + Math.Round(Masuk, 2)) - Math.Round(Keluar, 2)
-            $rec->saldoBuku = round(($rec->saldoAwal + round($rec->masuk, 2)) - round($rec->keluar, 2), 3);
-
+        // Calculate additional fields (saldoBuku and selisih) like in C# reference
+        $products->getCollection()->transform(function ($product) {
+            // Apply ABS to ensure positive values (matching C# Math.Abs())
+            $product->saldoAwal = abs($product->saldoAwal);
+            $product->masuk = abs($product->masuk);
+            $product->keluar = abs($product->keluar);
+            $product->stockOphname = abs($product->stockOphname);
+            
+            // SaldoBuku = (SaldoAwal + Masuk) - Keluar
+            $product->saldoBuku = round(($product->saldoAwal + round($product->masuk, 2)) - round($product->keluar, 2), 3);
+            
             // Selisih = StockOphname - SaldoBuku
-            $rec->selisih = round($rec->stockOphname - $rec->saldoBuku, 3);
+            $product->selisih = round($product->stockOphname - $product->saldoBuku, 3);
+            
+            return $product;
+        });
 
-            $results->push($rec);
-        }
-
-        // Convert to object with items() method for blade compatibility
-        $products = new class($results) {
-            private $items;
-
-            public function __construct($items) {
-                $this->items = $items;
-            }
-
-            public function items() {
-                return $this->items;
-            }
-
-            public function hasMorePages() {
-                return false;
-            }
-        };
+        // return response()->json($products);
 
         // 5. RENDER VIEW
         return view('Response.Report.ProductBbMain.search', compact('products'));
     }
-
 }
