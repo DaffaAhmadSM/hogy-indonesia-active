@@ -44,11 +44,19 @@
                                                 class="text-lg font-bold text-gray-800"></span>
                                             <span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
                                         </div>
-                                        <div>
+                                        <div class="flex items-center gap-2">
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                :class="{'cursor-not-allowed opacity-25': month == 0 }"
-                                                :disabled="month == 0 ? true : false" @click="month--; getNoOfDays()">
+                                                @click="year--; getNoOfDays()" title="Previous Year">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()" title="Previous Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -57,12 +65,20 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                :class="{'cursor-not-allowed opacity-25': month == 11 }"
-                                                :disabled="month == 11 ? true : false" @click="month++; getNoOfDays()">
+                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()" title="Next Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="year++; getNoOfDays()" title="Next Year">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                                                 </svg>
                                             </button>
                                         </div>
