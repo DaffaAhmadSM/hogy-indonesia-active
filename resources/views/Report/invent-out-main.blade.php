@@ -104,9 +104,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
-                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
-                                                        false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
@@ -211,9 +214,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
-                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
-                                                        false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
@@ -324,35 +330,61 @@
         </div>
 
         <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-            <table class="w-full table-fixed divide-y-2 divide-gray-200">
-                <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
-                    <tr class="*:font-medium *:text-gray-900">
-                        <th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nomor</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Tgl Kirim</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Pengirim</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">QTY</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Harga</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nilai</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Keterangan</th>
-                    </tr>
-                </thead>
+            <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+                <table class="w-full table-fixed border-separate border-spacing-0">
+                    <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+                        <tr class="text-center">
+                            <th colspan="3"
+                                class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400 border-r-0">
+                                Data Pemasukan Barang
+                            </th>
+                            <th colspan="2"
+                                class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400">
+                                Bukti Pengiriman Barang
+                            </th>
 
-                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.invent-out-main.search', ['state' => $state]) }}" hx-trigger="load"
-                        hx-swap="outerHTML">
-                        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
-                            @include('components.loading-spinner');
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Pengirim Barang</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Kode barang</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Nama barang</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Jumlah</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Satuan</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Nilai</th>
+                        </tr>
+                        <tr class="text-center">
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">Jenis
+                            </th>
+                            <th
+                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
+                                Nomor</th>
+                            <th
+                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0 border-r-0">
+                                Tanggal</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">
+                                nomor</th>
+                            <th
+                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
+                                tanggal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="" id="prod-receipt-table-body">
+
+                    <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                        <tr hx-get="{{ route('report.invent-out-main.search', ['state' => $state]) }}" hx-trigger="load"
+                            hx-swap="outerHTML">
+                            <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+                                @include('components.loading-spinner');
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
 

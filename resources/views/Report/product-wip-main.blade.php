@@ -178,17 +178,19 @@
         </div>
 
         <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-            <table class="w-full table-fixed divide-y-2 divide-gray-200">
+            <table class="w-full table-fixed border-separate border-spacing-0">
                 <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
                     <tr class="*:font-medium *:text-gray-900">
-                        <th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nama Barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Jumlah</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400">Kode barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Nama Barang
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Satuan</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Saldo Akhir
+                        </th>
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                <tbody class="" id="prod-receipt-table-body">
                     <tr hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}" hx-trigger="load"
                         hx-swap="outerHTML">
                         <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">

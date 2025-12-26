@@ -330,115 +330,140 @@
         </div>
 
         <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-            <table class="w-full table-fixed divide-y-2 divide-gray-200">
-                <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
-                    <tr class="*:font-medium *:text-gray-900">
-                        <th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nomor</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Tgl Terima</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Pengirim</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">QTY</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Harga</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nilai</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Keterangan</th>
-                    </tr>
-                </thead>
+            <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+                <table class="w-full table-fixed border-separate border-spacing-0">
+                    <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+                        <tr class="text-center">
+                            <th colspan="3"
+                                class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400 border-r-0">
+                                Data Pemasukan Barang
+                            </th>
+                            <th colspan="2"
+                                class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400">
+                                Bukti Pengiriman Barang
+                            </th>
 
-                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.invent-in-main.search', ['state' => $state]) }}" hx-trigger="load"
-                        hx-swap="outerHTML">
-                        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
-                            @include('components.loading-spinner');
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Pengirim Barang</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Kode barang</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Nama barang</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Jumlah</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Satuan</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                                rowspan="2">Nilai</th>
+                        </tr>
+                        <tr class="text-center">
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">Jenis
+                            </th>
+                            <th
+                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
+                                Nomor</th>
+                            <th
+                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0 border-r-0">
+                                Tanggal</th>
+                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">
+                                nomor</th>
+                            <th
+                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
+                                tanggal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="" id="prod-receipt-table-body">
+
+                    <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                        <tr hx-get="{{ route('report.invent-in-main.search', ['state' => $state]) }}" hx-trigger="load"
+                            hx-swap="outerHTML">
+                            <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+                                @include('components.loading-spinner');
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
         </div>
 
+        @include('components.hx.toast')
 
-    </div>
+        <script>
+            const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+                'October', 'November', 'December'
+            ];
+            const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    @include('components.hx.toast')
+            function app() {
+                return {
+                    showDatepicker: false,
+                    datepickerValue: '',
 
-    <script>
-        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
-            'October', 'November', 'December'
-        ];
-        const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    month: '',
+                    year: '',
+                    no_of_days: [],
+                    blankdays: [],
+                    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 
-        function app() {
-            return {
-                showDatepicker: false,
-                datepickerValue: '',
+                    initDate() {
+                        let base;
+                        const v = this.$refs?.date?.value;
+                        if (v) {
+                            const parts = v.split('-').map(Number);
+                            const y = parts[0];
+                            const m = (parts[1] || 1) - 1; // 0-based
+                            const d = parts[2] || 1;
+                            base = new Date(y, m, d);
+                        } else {
+                            base = new Date();
+                        }
+                        this.month = base.getMonth();
+                        this.year = base.getFullYear();
+                        this.datepickerValue = new Date(this.year, this.month, base.getDate()).toDateString();
+                    },
 
-                month: '',
-                year: '',
-                no_of_days: [],
-                blankdays: [],
-                days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    isToday(date) {
+                        const today = new Date();
+                        const d = new Date(this.year, this.month, date);
 
-                initDate() {
-                    let base;
-                    const v = this.$refs?.date?.value;
-                    if (v) {
-                        const parts = v.split('-').map(Number);
-                        const y = parts[0];
-                        const m = (parts[1] || 1) - 1; // 0-based
-                        const d = parts[2] || 1;
-                        base = new Date(y, m, d);
-                    } else {
-                        base = new Date();
+                        return today.toDateString() === d.toDateString() ? true : false;
+                    },
+
+                    getDateValue(date) {
+                        let selectedDate = new Date(this.year, this.month, date);
+                        this.datepickerValue = selectedDate.toDateString();
+
+                        // Month is zero-based in JS Date; add 1 for YYYY-MM-DD
+                        this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-
+                            2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
+
+                        console.log(this.$refs.date.value);
+
+                        this.showDatepicker = false;
+                    },
+
+                    getNoOfDays() {
+                        let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
+
+                        // find where to start calendar day of week
+                        let dayOfWeek = new Date(this.year, this.month).getDay();
+                        let blankdaysArray = [];
+                        for (var i = 1; i <= dayOfWeek; i++) {
+                            blankdaysArray.push(i);
+                        }
+
+                        let daysArray = [];
+                        for (var i = 1; i <= daysInMonth; i++) {
+                            daysArray.push(i);
+                        }
+
+                        this.blankdays = blankdaysArray;
+                        this.no_of_days = daysArray;
                     }
-                    this.month = base.getMonth();
-                    this.year = base.getFullYear();
-                    this.datepickerValue = new Date(this.year, this.month, base.getDate()).toDateString();
-                },
-
-                isToday(date) {
-                    const today = new Date();
-                    const d = new Date(this.year, this.month, date);
-
-                    return today.toDateString() === d.toDateString() ? true : false;
-                },
-
-                getDateValue(date) {
-                    let selectedDate = new Date(this.year, this.month, date);
-                    this.datepickerValue = selectedDate.toDateString();
-
-                    // Month is zero-based in JS Date; add 1 for YYYY-MM-DD
-                    this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-
-                        2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
-
-                    console.log(this.$refs.date.value);
-
-                    this.showDatepicker = false;
-                },
-
-                getNoOfDays() {
-                    let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
-
-                    // find where to start calendar day of week
-                    let dayOfWeek = new Date(this.year, this.month).getDay();
-                    let blankdaysArray = [];
-                    for (var i = 1; i <= dayOfWeek; i++) {
-                        blankdaysArray.push(i);
-                    }
-
-                    let daysArray = [];
-                    for (var i = 1; i <= daysInMonth; i++) {
-                        daysArray.push(i);
-                    }
-
-                    this.blankdays = blankdaysArray;
-                    this.no_of_days = daysArray;
                 }
             }
-        }
-    </script>
-@endsection
+        </script>
+    @endsection

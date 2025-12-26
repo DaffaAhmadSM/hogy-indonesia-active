@@ -104,9 +104,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
-                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
-                                                        false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
@@ -211,9 +214,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
-                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
-                                                        false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
@@ -303,23 +309,30 @@
         Stock Opname
         Selisih --}}
         <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-            <table class="w-full table-fixed divide-y-2 divide-gray-200">
+            <table class="w-full table-fixed border-separate border-spacing-0">
                 <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
                     <tr class="*:font-medium *:text-gray-900">
-                        <th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Nama Barang</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Saldo awal</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Pemasukan</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Pengeluaran</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Penyesuaian</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Saldo Buku</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Stock Opname</th>
-                        <th class="px-3 py-2 whitespace-normal break-words">Selisih</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400">Kode barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Nama Barang
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Satuan</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Saldo awal
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Pemasukan
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Pengeluaran
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Penyesuaian
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Saldo Buku
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Stock Opname
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Selisih</th>
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                <tbody class="" id="prod-receipt-table-body">
                     <tr hx-get="{{ route('report.product-bb-main.search', ['type' => $type, 'state' => $state]) }}"
                         hx-trigger="load" hx-swap="outerHTML">
                         <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">

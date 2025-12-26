@@ -195,13 +195,13 @@
                             </div>
                         </li>
 
-                        <li>
+                        {{-- <li>
                             <a class="text-gray-500 transition hover:text-gray-500/75" href="#"> Gudang </a>
                         </li>
 
                         <li>
                             <a class="text-gray-500 transition hover:text-gray-500/75" href="#"> Activity Log </a>
-                        </li>
+                        </li> --}}
 
                         <li>
                             <a class="text-gray-500 transition hover:text-gray-500/75" href="/logout"> Log Out </a>
@@ -218,7 +218,7 @@
     </main>
 
     <footer class="shrink-0">
-        <p>&copy; 2024 DBI Ecustom. All rights reserved.</p>
+        <p>PT Hogy Indonesia</p>
     </footer>
 </body>
 
