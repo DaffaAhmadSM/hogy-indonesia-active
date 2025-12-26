@@ -35,61 +35,61 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'invent-in-main'], function () {
-        Route::get('/', [InventInMainController::class, 'index'])->name('report.invent-in-main');
-        Route::post('/export', [InventInMainController::class, 'export'])->name('report.invent-in-main.export');
+        Route::get('/{state}', [InventInMainController::class, 'index'])->name('report.invent-in-main');
+        Route::post('/export/{state}', [InventInMainController::class, 'export'])->name('report.invent-in-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('/search', [InventInMainController::class, 'hxSearch'])->name('report.invent-in-main.search');
+            Route::get('/search/{state}', [InventInMainController::class, 'hxSearch'])->name('report.invent-in-main.search');
         });
     });
 
     Route::group(['prefix' => 'invent-out-main'], function () {
-        Route::get('/', [InventOutMainController::class, 'index'])->name('report.invent-out-main');
-        Route::post('/export', [InventOutMainController::class, 'export'])->name('report.invent-out-main.export');
-        Route::get('/detail/{salesPickLineRecId}', [InventOutMainController::class, 'show'])->name('report.invent-out-main.detail');
+        Route::get('/{state}', [InventOutMainController::class, 'index'])->name('report.invent-out-main');
+        Route::post('/export/{state}', [InventOutMainController::class, 'export'])->name('report.invent-out-main.export');
+        Route::get('/detail/{state}/{salesPickLineRecId}', [InventOutMainController::class, 'show'])->name('report.invent-out-main.detail');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('/search', [InventOutMainController::class, 'hxSearch'])->name('report.invent-out-main.search');
+            Route::get('/search/{state}', [InventOutMainController::class, 'hxSearch'])->name('report.invent-out-main.search');
         });
     });
 
     Route::group(['prefix' => 'product-wip-main'], function () {
-        Route::get('/', [ProductWipMainController::class, 'index'])->name('report.product-wip-main');
-        Route::post('/export', [ProductWipMainController::class, 'export'])->name('report.product-wip-main.export');
+        Route::get('/{state}', [ProductWipMainController::class, 'index'])->name('report.product-wip-main');
+        Route::post('/export/{state}', [ProductWipMainController::class, 'export'])->name('report.product-wip-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('/search', [ProductWipMainController::class, 'hxSearch'])->name('report.product-wip-main.search');
+            Route::get('/search/{state}', [ProductWipMainController::class, 'hxSearch'])->name('report.product-wip-main.search');
             Route::get('/export/status/{filename}', [ProductWipMainController::class, 'checkWipExportStatus'])->name('report.product-wip-main.export.status');
         });
     });
 
     Route::group(['prefix' => 'product-bb-main'], function () {
-        Route::get('/{type}', [ProductBbMainController::class, 'index'])->name('report.product-bb-main');
-        Route::post('{type}/export', [ProductBbMainController::class, 'export'])->name('report.product-bb-main.export');
+        Route::get('/{type}/{state}', [ProductBbMainController::class, 'index'])->name('report.product-bb-main');
+        Route::post('{type}/export/{state}', [ProductBbMainController::class, 'export'])->name('report.product-bb-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('{type}/search', [ProductBbMainController::class, 'hxSearch'])->name('report.product-bb-main.search');
+            Route::get('{type}/search/{state}', [ProductBbMainController::class, 'hxSearch'])->name('report.product-bb-main.search');
             Route::get('bb-export/status/{filename}', [ProductBbMainController::class, 'checkExportStatus'])->name('report.product-bb-main.export.status');
         });
     });
 
     Route::group(['prefix' => 'product-reject-main'], function () {
-        Route::get('/', [ProductRejectController::class, 'index'])->name('report.product-reject-main');
-        Route::post('/export', [ProductRejectController::class, 'export'])->name('report.product-reject-main.export');
+        Route::get('/{state}', [ProductRejectController::class, 'index'])->name('report.product-reject-main');
+        Route::post('/export/{state}', [ProductRejectController::class, 'export'])->name('report.product-reject-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('/search', [ProductRejectController::class, 'hxSearch'])->name('report.product-reject-main.search');
+            Route::get('/search/{state}', [ProductRejectController::class, 'hxSearch'])->name('report.product-reject-main.search');
         });
     });
 
     Route::group(['prefix' => 'product-scrap-main'], function () {
-        Route::get('/', function () : \Illuminate\View\View {
+        Route::get('/{state}', function () : \Illuminate\View\View {
             return view('Report.product-scrap-main');
         })->name('report.product-scrap-main');
-        Route::post('/export', [ProductRejectController::class, 'export'])->name('report.product-scrap-main.export');
+        Route::post('/export/{state}', [ProductRejectController::class, 'export'])->name('report.product-scrap-main.export');
 
         Route::group(['prefix' => 'hx'], function () {
-            Route::get('/search', [ProductRejectController::class, 'hxSearch'])->name('report.product-scrap-main.search');
+            Route::get('/search/{state}', [ProductRejectController::class, 'hxSearch'])->name('report.product-scrap-main.search');
         });
     });
 
