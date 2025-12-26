@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class InventOutMainController extends Controller
 {
-    public function index()
+    public function index($state = "active")
     {
         // $validator = Validator::make(request()->all(), [
         //     'fromDate' => 'required|date',
@@ -31,7 +31,7 @@ class InventOutMainController extends Controller
         // return response()->json($prod_receipt->items());
 
 
-        return view('Report.invent-out-main');
+        return view('Report.invent-out-main', ['state' => $state]);
     }
 
     /**

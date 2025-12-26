@@ -1,286 +1,293 @@
 @extends('main-layout')
 
 @section('content')
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 
-	<style>
-		[x-cloak] {
-			display: none !important;
-		}
-	</style>
+    <div class="flex flex-col gap-0 max-h-full">
+        <div class="flex align-middle justify-center">
+            <h1 class="text-2xl font-bold mb-4">Laporan Pengeluaran Barang ({{ $state }})</h1>
+        </div>
+        <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
+            @csrf
+            <div class="antialiased font-sans">
+                <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
+                    <div class="container mx-auto px-4 py-2 md:py-10">
+                        <div class="mb-5 w-64">
+                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">From date</label>
+                            <div class="relative">
+                                <input type="hidden" name="fromDate" x-ref="date" id="fromDate-data"
+                                    value="{{ request('fromDate') }}">
+                                <input type="text" readonly x-model="datepickerValue"
+                                    @click="showDatepicker = !showDatepicker" @keydown.escape="showDatepicker = false"
+                                    class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
+                                    placeholder="Select date">
 
-	<div class="flex flex-col gap-0 max-h-full">
-		<div class="flex align-middle justify-center">
-			<h1 class="text-2xl font-bold mb-4">Laporan Pengeluaran Barang</h1>
-		</div>
-		<div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
-			@csrf
-			<div class="antialiased font-sans">
-				<div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
-					<div class="container mx-auto px-4 py-2 md:py-10">
-						<div class="mb-5 w-64">
-							<label for="datepicker" class="font-bold mb-1 text-gray-700 block">From date</label>
-							<div class="relative">
-								<input type="hidden" name="fromDate" x-ref="date" id="fromDate-data"
-									value="{{ request('fromDate') }}">
-								<input type="text" readonly x-model="datepickerValue"
-									@click="showDatepicker = !showDatepicker" @keydown.escape="showDatepicker = false"
-									class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
-									placeholder="Select date">
+                                <div class="absolute top-0 right-0 px-3 py-2">
+                                    <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
+                                    style="width: 17rem" x-show.transition="showDatepicker"
+                                    @click.away="showDatepicker = false">
 
-								<div class="absolute top-0 right-0 px-3 py-2">
-									<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
-										stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-									</svg>
-								</div>
-								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
-									style="width: 17rem" x-show.transition="showDatepicker"
-									@click.away="showDatepicker = false">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div>
+                                            <span x-text="MONTH_NAMES[month]"
+                                                class="text-lg font-bold text-gray-800"></span>
+                                            <span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="year--; getNoOfDays()" title="Previous Year">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()"
+                                                title="Previous Month">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()"
+                                                title="Next Month">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="year++; getNoOfDays()" title="Next Year">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
 
-									<div class="flex justify-between items-center mb-2">
-										<div>
-											<span x-text="MONTH_NAMES[month]"
-												class="text-lg font-bold text-gray-800"></span>
-											<span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
-										</div>
-										<div class="flex items-center gap-2">
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="year--; getNoOfDays()" title="Previous Year">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-												</svg>
-											</button>
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()" title="Previous Month">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M15 19l-7-7 7-7" />
-												</svg>
-											</button>
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()" title="Next Month">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M9 5l7 7-7 7" />
-												</svg>
-											</button>
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="year++; getNoOfDays()" title="Next Year">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-												</svg>
-											</button>
-										</div>
-									</div>
+                                    <div class="flex flex-wrap mb-3 -mx-1">
+                                        <template x-for="(day, index) in DAYS" :key="index">
+                                            <div style="width: 14.26%" class="px-1">
+                                                <div x-text="day" class="text-gray-800 font-medium text-center text-xs">
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
 
-									<div class="flex flex-wrap mb-3 -mx-1">
-										<template x-for="(day, index) in DAYS" :key="index">
-											<div style="width: 14.26%" class="px-1">
-												<div x-text="day" class="text-gray-800 font-medium text-center text-xs">
-												</div>
-											</div>
-										</template>
-									</div>
+                                    <div class="flex flex-wrap -mx-1">
+                                        <template x-for="blankday in blankdays">
+                                            <div style="width: 14.28%"
+                                                class="text-center border p-1 border-transparent text-sm">
+                                            </div>
+                                        </template>
+                                        <template x-for="(date, dateIndex) in no_of_days" :key="dateIndex">
+                                            <div style="width: 14.28%" class="px-1 mb-1">
+                                                <div @click="getDateValue(date)" x-text="date"
+                                                    class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
+                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
+                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                        false }">
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
 
-									<div class="flex flex-wrap -mx-1">
-										<template x-for="blankday in blankdays">
-											<div style="width: 14.28%"
-												class="text-center border p-1 border-transparent text-sm">
-											</div>
-										</template>
-										<template x-for="(date, dateIndex) in no_of_days" :key="dateIndex">
-											<div style="width: 14.28%" class="px-1 mb-1">
-												<div @click="getDateValue(date)" x-text="date"
-													class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-													:class="{'bg-blue-500 text-white': isToday(date) == true, 'text-gray-700 hover:bg-blue-200': isToday(date) == false }">
-												</div>
-											</div>
-										</template>
-									</div>
-								</div>
+                            </div>
+                        </div>
 
-							</div>
-						</div>
+                    </div>
+                </div>
+            </div>
 
-					</div>
-				</div>
-			</div>
+            <div class="antialiased font-sans">
+                <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
+                    <div class="container mx-auto px-4 py-2 md:py-10">
+                        <div class="mb-5 w-64">
+                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">To date</label>
+                            <div class="relative">
+                                <input type="hidden" name="toDate" x-ref="date" id="toDate-data"
+                                    value="{{ request('toDate') }}">
+                                <input type="text" readonly x-model="datepickerValue"
+                                    @click="showDatepicker = !showDatepicker" @keydown.escape="showDatepicker = false"
+                                    class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
+                                    placeholder="Select date">
 
-			<div class="antialiased font-sans">
-				<div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
-					<div class="container mx-auto px-4 py-2 md:py-10">
-						<div class="mb-5 w-64">
-							<label for="datepicker" class="font-bold mb-1 text-gray-700 block">To date</label>
-							<div class="relative">
-								<input type="hidden" name="toDate" x-ref="date" id="toDate-data"
-									value="{{ request('toDate') }}">
-								<input type="text" readonly x-model="datepickerValue"
-									@click="showDatepicker = !showDatepicker" @keydown.escape="showDatepicker = false"
-									class="w-full pl-4 pr-10 py-3 leading-none rounded-lg shadow-xs focus:outline-hidden use focus:ring-3 focus:ring-blue-500 text-gray-600 font-medium"
-									placeholder="Select date">
+                                <div class="absolute top-0 right-0 px-3 py-2">
+                                    <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
+                                    style="width: 17rem" x-show.transition="showDatepicker"
+                                    @click.away="showDatepicker = false">
 
-								<div class="absolute top-0 right-0 px-3 py-2">
-									<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
-										stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-									</svg>
-								</div>
-								<div class="bg-white mt-12 rounded-lg shadow-sm p-4 absolute top-0 left-0 z-10"
-									style="width: 17rem" x-show.transition="showDatepicker"
-									@click.away="showDatepicker = false">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div>
+                                            <span x-text="MONTH_NAMES[month]"
+                                                class="text-lg font-bold text-gray-800"></span>
+                                            <span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="year--; getNoOfDays()" title="Previous Year">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()"
+                                                title="Previous Month">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()"
+                                                title="Next Month">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
+                                                @click="year++; getNoOfDays()" title="Next Year">
+                                                <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
 
-									<div class="flex justify-between items-center mb-2">
-										<div>
-											<span x-text="MONTH_NAMES[month]"
-												class="text-lg font-bold text-gray-800"></span>
-											<span x-text="year" class="ml-1 text-lg text-gray-600 font-normal"></span>
-										</div>
-										<div class="flex items-center gap-2">
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="year--; getNoOfDays()" title="Previous Year">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-												</svg>
-											</button>
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()" title="Previous Month">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M15 19l-7-7 7-7" />
-												</svg>
-											</button>
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()" title="Next Month">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M9 5l7 7-7 7" />
-												</svg>
-											</button>
-											<button type="button"
-												class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-												@click="year++; getNoOfDays()" title="Next Year">
-												<svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
-													viewBox="0 0 24 24" stroke="currentColor">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-														d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-												</svg>
-											</button>
-										</div>
-									</div>
+                                    <div class="flex flex-wrap mb-3 -mx-1">
+                                        <template x-for="(day, index) in DAYS" :key="index">
+                                            <div style="width: 14.26%" class="px-1">
+                                                <div x-text="day" class="text-gray-800 font-medium text-center text-xs">
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
 
-									<div class="flex flex-wrap mb-3 -mx-1">
-										<template x-for="(day, index) in DAYS" :key="index">
-											<div style="width: 14.26%" class="px-1">
-												<div x-text="day" class="text-gray-800 font-medium text-center text-xs">
-												</div>
-											</div>
-										</template>
-									</div>
+                                    <div class="flex flex-wrap -mx-1">
+                                        <template x-for="blankday in blankdays">
+                                            <div style="width: 14.28%"
+                                                class="text-center border p-1 border-transparent text-sm">
+                                            </div>
+                                        </template>
+                                        <template x-for="(date, dateIndex) in no_of_days" :key="dateIndex">
+                                            <div style="width: 14.28%" class="px-1 mb-1">
+                                                <div @click="getDateValue(date)" x-text="date"
+                                                    class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
+                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
+                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                        false }">
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
 
-									<div class="flex flex-wrap -mx-1">
-										<template x-for="blankday in blankdays">
-											<div style="width: 14.28%"
-												class="text-center border p-1 border-transparent text-sm">
-											</div>
-										</template>
-										<template x-for="(date, dateIndex) in no_of_days" :key="dateIndex">
-											<div style="width: 14.28%" class="px-1 mb-1">
-												<div @click="getDateValue(date)" x-text="date"
-													class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-													:class="{'bg-blue-500 text-white': isToday(date) == true, 'text-gray-700 hover:bg-blue-200': isToday(date) == false }">
-												</div>
-											</div>
-										</template>
-									</div>
-								</div>
+                            </div>
+                        </div>
 
-							</div>
-						</div>
+                    </div>
+                </div>
+            </div>
 
-					</div>
-				</div>
-			</div>
+            <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600" x-data="{ search: '' }">
+                <div class="container mx-auto px-4 py-2">
+                    <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 px-4 py-2">
+                        <label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
 
-			<div class="flex w-full max-w-md flex-col gap-1 text-neutral-600" x-data="{ search: '' }">
-				<div class="container mx-auto px-4 py-2">
-					<div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 px-4 py-2">
-						<label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
+                        <!-- Baris untuk input dan tombol aksi -->
+                        <!-- 'items-end' akan menyelaraskan semua item di bagian bawah -->
+                        <div class="flex flex-row gap-2 w-full items-end">
+                            <!-- Bungkus input agar bisa tumbuh mengisi ruang -->
+                            <div class="flex-grow">
+                                <input id="keyword" type="text"
+                                    class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75"
+                                    name="keyword" placeholder="search" x-model="search" />
+                            </div>
 
-						<!-- Baris untuk input dan tombol aksi -->
-						<!-- 'items-end' akan menyelaraskan semua item di bagian bawah -->
-						<div class="flex flex-row gap-2 w-full items-end">
-							<!-- Bungkus input agar bisa tumbuh mengisi ruang -->
-							<div class="flex-grow">
-								<input id="keyword" type="text"
-									class="w-full rounded-sm border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-75"
-									name="keyword" placeholder="search" x-model="search" />
-							</div>
+                            <!-- Tombol Search -->
+                            <button hx-get="{{ route('report.invent-out-main.search', ['state' => $state]) }}"
+                                hx-include="#fromDate-data, #toDate-data, #keyword"
+                                class="flex-shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Search
+                            </button>
 
-							<!-- Tombol Search -->
-							<button hx-get="{{ route('report.invent-out-main.search') }}"
-								hx-include="#fromDate-data, #toDate-data, #keyword"
-								class="flex-shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
-								Search
-							</button>
+                            <!-- Tombol Export -->
+                            <button hx-post="{{ route('report.invent-out-main.export', ['state' => $state]) }}"
+                                hx-include="[name=_token], #fromDate-data, #toDate-data, #keyword"
+                                hx-target="#export-area" hx-swap="innerHTML" hx-indicator="#export-spinner"
+                                class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                                Export
+                            </button>
+                        </div>
 
-							<!-- Tombol Export -->
-							<button hx-post="{{ route('report.invent-out-main.export') }}"
-								hx-include="[name=_token], #fromDate-data, #toDate-data, #keyword" hx-target="#export-area"
-								hx-swap="innerHTML" hx-indicator="#export-spinner"
-								class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
-								Export
-							</button>
-						</div>
+                        <!-- Area untuk status ekspor dan spinner, dipisahkan dari baris aksi -->
+                        <div class="flex flex-row items-center gap-2 mt-2 min-h-[30px]">
+                            <!-- min-h untuk mencegah layout shift -->
+                            <div id="export-area" class="w-full max-w-lg space-y-2">
+                                <div for="File"
+                                    class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
+                                    <div class="flex items-center justify-center gap-4">
+                                        <span class="font-medium"> There are no export queues </span>
 
-						<!-- Area untuk status ekspor dan spinner, dipisahkan dari baris aksi -->
-						<div class="flex flex-row items-center gap-2 mt-2 min-h-[30px]">
-							<!-- min-h untuk mencegah layout shift -->
-							<div id="export-area" class="w-full max-w-lg space-y-2">
-								<div for="File"
-									class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
-									<div class="flex items-center justify-center gap-4">
-										<span class="font-medium"> There are no export queues </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
 
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-											stroke-width="1.5" stroke="currentColor" class="size-6">
-											<path stroke-linecap="round" stroke-linejoin="round"
-												d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
-										</svg>
-									</div>
-								</div>
-							</div>
+                            <div class="htmx-indicator" id="export-spinner">
+                                @include('components.loading-spinner')
+                            </div>
+                            <span id="search-spinner" class="htmx-indicator">
+                                @include('components.loading-spinner')
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-							<div class="htmx-indicator" id="export-spinner">
-								@include('components.loading-spinner')
-							</div>
-							<span id="search-spinner" class="htmx-indicator">
-								@include('components.loading-spinner')
-							</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{{-- <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white rounded"
+            {{-- <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 dark:text-neutral-300 bg-white rounded"
 				x-data="{ search: '' }">
 				<div class="container mx-auto px-4 py-2 md:py-10">
 					<div
@@ -314,95 +321,98 @@
 
 				</div>
 			</div> --}}
-		</div>
+        </div>
 
-		<div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-			<table class="w-full table-fixed divide-y-2 divide-gray-200">
-				<thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
-					<tr class="*:font-medium *:text-gray-900">
-						<th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
-						<th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
-						<th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Nomor</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Tgl Kirim</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Pengirim</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
-						<th class="px-3 py-2 whitespace-normal break-words">QTY</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Harga</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Nilai</th>
-						<th class="px-3 py-2 whitespace-normal break-words">Keterangan</th>
-					</tr>
-				</thead>
+        <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+            <table class="w-full table-fixed divide-y-2 divide-gray-200">
+                <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+                    <tr class="*:font-medium *:text-gray-900">
+                        <th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Nomor</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Tgl Kirim</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Pengirim</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">QTY</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Harga</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Nilai</th>
+                        <th class="px-3 py-2 whitespace-normal break-words">Keterangan</th>
+                    </tr>
+                </thead>
 
-				<tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-					<tr hx-get="{{ route('report.invent-in-main.search') }}" hx-trigger="load" hx-swap="outerHTML">
-						<td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
-							@include('components.loading-spinner');
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                    <tr hx-get="{{ route('report.invent-out-main.search', ['state' => $state]) }}" hx-trigger="load"
+                        hx-swap="outerHTML">
+                        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+                            @include('components.loading-spinner');
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
 
-	</div>
+    </div>
 
-	<div x-data="{ isOpen: false }" x-show="isOpen" @htmx:after-swap="isOpen = true" @keydown.escape.window="isOpen = false"
-		x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-		x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-		class="fixed inset-0 z-50 grid place-content-center bg-black/50 p-4" style="display: none;" {{-- Hide it initially
+    <div x-data="{ isOpen: false }" x-show="isOpen" @htmx:after-swap="isOpen = true"
+        @keydown.escape.window="isOpen = false" x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 grid place-content-center bg-black/50 p-4"
+        style="display: none;" {{-- Hide it initially
 		to prevent flash of content --}}>
-		{{-- The Modal Panel --}}
-		<div @click.away="isOpen = false"
-			class="w-full max-w-[97rem] h-full overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
-			<div class="flex items-start justify-between">
-				<h2 id="modalTitle" class="text-xl font-bold text-gray-900 sm:text-2xl">Detail Item</h2>
+        {{-- The Modal Panel --}}
+        <div @click.away="isOpen = false"
+            class="w-full max-w-[97rem] h-full overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+            <div class="flex items-start justify-between">
+                <h2 id="modalTitle" class="text-xl font-bold text-gray-900 sm:text-2xl">Detail Item</h2>
 
-				<button @click="isOpen = false" type="button"
-					class="-me-4 -mt-4 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 focus:outline-none"
-					aria-label="Close">
-					<svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
-						stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-					</svg>
-				</button>
-			</div>
+                <button @click="isOpen = false" type="button"
+                    class="-me-4 -mt-4 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 focus:outline-none"
+                    aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
 
-			{{-- This is the target where HTMX will place the dynamic content --}}
-			<div id="modal-content" class="mt-4">
-				<div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-					<table class="w-full table-fixed divide-y-2 divide-gray-200">
-						<thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
-							<tr class="*:font-medium *:text-gray-900">
-								<th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
-								<th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
-								<th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
-								<th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
-								<th class="px-3 py-2 whitespace-normal break-words">No Invoice</th>
-								<th class="px-3 py-2 whitespace-normal break-words">Tgl Invoice</th>
-								<th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
-								<th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
-								<th class="px-3 py-2 whitespace-normal break-words">QTY</th>
-								<th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
-								<th class="px-3 py-2 whitespace-normal break-words">JournalID</th>
-								<th class="px-3 py-2 whitespace-normal break-words">Worksheet</th>
-							</tr>
-						</thead>
+            {{-- This is the target where HTMX will place the dynamic content --}}
+            <div id="modal-content" class="mt-4">
+                <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+                    <table class="w-full table-fixed divide-y-2 divide-gray-200">
+                        <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+                            <tr class="*:font-medium *:text-gray-900">
+                                <th class="px-3 py-2 whitespace-normal break-words">Jenis</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">No Aju</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">No Daftar</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">Tgl Daftar</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">No Invoice</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">Tgl Invoice</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">Kode barang</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">Nama barang</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">QTY</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">Satuan</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">JournalID</th>
+                                <th class="px-3 py-2 whitespace-normal break-words">Worksheet</th>
+                            </tr>
+                        </thead>
 
-						<tbody class="divide-y divide-gray-200" id="modal-table">
+                        <tbody class="divide-y divide-gray-200" id="modal-table">
 
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
-	{{-- <div x-data="{ isOpen: false }" @htmx:after-swap="isOpen = true" class="relative z-50">
+    {{-- <div x-data="{ isOpen: false }" @htmx:after-swap="isOpen = true" class="relative z-50">
 		<div x-show="isOpen" x-transition.opacity class="fixed inset-0 bg-black/50"></div>
 
 		<div x-show="isOpen" x-transition class="fixed inset-0 overflow-y-auto">
@@ -423,80 +433,81 @@
 			</div>
 		</div>
 	</div> --}}
-	@include('components.hx.toast')
+    @include('components.hx.toast')
 
-	<script>
-		const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-		const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    <script>
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+            'October', 'November', 'December'
+        ];
+        const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-		function app() {
-			return {
-				showDatepicker: false,
-				datepickerValue: '',
+        function app() {
+            return {
+                showDatepicker: false,
+                datepickerValue: '',
 
-				month: '',
-				year: '',
-				no_of_days: [],
-				blankdays: [],
-				days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                month: '',
+                year: '',
+                no_of_days: [],
+                blankdays: [],
+                days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 
-				initDate() {
-					let base;
-					const v = this.$refs?.date?.value;
-					if (v) {
-						const parts = v.split('-').map(Number);
-						const y = parts[0];
-						const m = (parts[1] || 1) - 1; // 0-based
-						const d = parts[2] || 1;
-						base = new Date(y, m, d);
-					} else {
-						base = new Date();
-					}
-					this.month = base.getMonth();
-					this.year = base.getFullYear();
-					this.datepickerValue = new Date(this.year, this.month, base.getDate()).toDateString();
-				},
+                initDate() {
+                    let base;
+                    const v = this.$refs?.date?.value;
+                    if (v) {
+                        const parts = v.split('-').map(Number);
+                        const y = parts[0];
+                        const m = (parts[1] || 1) - 1; // 0-based
+                        const d = parts[2] || 1;
+                        base = new Date(y, m, d);
+                    } else {
+                        base = new Date();
+                    }
+                    this.month = base.getMonth();
+                    this.year = base.getFullYear();
+                    this.datepickerValue = new Date(this.year, this.month, base.getDate()).toDateString();
+                },
 
-				isToday(date) {
-					const today = new Date();
-					const d = new Date(this.year, this.month, date);
+                isToday(date) {
+                    const today = new Date();
+                    const d = new Date(this.year, this.month, date);
 
-					return today.toDateString() === d.toDateString() ? true : false;
-				},
+                    return today.toDateString() === d.toDateString() ? true : false;
+                },
 
-				getDateValue(date) {
-					let selectedDate = new Date(this.year, this.month, date);
-					this.datepickerValue = selectedDate.toDateString();
+                getDateValue(date) {
+                    let selectedDate = new Date(this.year, this.month, date);
+                    this.datepickerValue = selectedDate.toDateString();
 
-					// Month is zero-based in JS Date; add 1 for YYYY-MM-DD
-					this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
+                    // Month is zero-based in JS Date; add 1 for YYYY-MM-DD
+                    this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-
+                        2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
 
-					console.log(this.$refs.date.value);
+                    console.log(this.$refs.date.value);
 
-					this.showDatepicker = false;
-				},
+                    this.showDatepicker = false;
+                },
 
-				getNoOfDays() {
-					let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
+                getNoOfDays() {
+                    let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
 
-					// find where to start calendar day of week
-					let dayOfWeek = new Date(this.year, this.month).getDay();
-					let blankdaysArray = [];
-					for (var i = 1; i <= dayOfWeek; i++) {
-						blankdaysArray.push(i);
-					}
+                    // find where to start calendar day of week
+                    let dayOfWeek = new Date(this.year, this.month).getDay();
+                    let blankdaysArray = [];
+                    for (var i = 1; i <= dayOfWeek; i++) {
+                        blankdaysArray.push(i);
+                    }
 
-					let daysArray = [];
-					for (var i = 1; i <= daysInMonth; i++) {
-						daysArray.push(i);
-					}
+                    let daysArray = [];
+                    for (var i = 1; i <= daysInMonth; i++) {
+                        daysArray.push(i);
+                    }
 
-					this.blankdays = blankdaysArray;
-					this.no_of_days = daysArray;
-				}
-			}
-		}
-	</script>
-
-
+                    this.blankdays = blankdaysArray;
+                    this.no_of_days = daysArray;
+                }
+            }
+        }
+    </script>
 @endsection

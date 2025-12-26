@@ -17,9 +17,9 @@ class ProductRejectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(string $state = "active")
     {
-        return view('Report.product-reject-main');
+        return view('Report.product-reject-main', ['state' => $state]);
     }
 
     /**

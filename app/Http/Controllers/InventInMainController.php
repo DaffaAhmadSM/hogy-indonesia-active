@@ -12,7 +12,7 @@ class InventInMainController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($state = "active")
     {
         // $validator = Validator::make(request()->all(), [
         //     'fromDate' => 'required|date',
@@ -28,7 +28,7 @@ class InventInMainController extends Controller
         $toDate = Carbon::now()->endOfMonth();
 
 
-        return view('Report.invent-in-main');
+        return view('Report.invent-in-main', ['state' => $state]);
     }
 
     /**

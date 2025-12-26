@@ -1,7 +1,6 @@
 @extends('main-layout')
 
 @section('content')
-
     <style>
         [x-cloak] {
             display: none !important;
@@ -10,7 +9,7 @@
 
     <div class="flex flex-col gap-0 max-h-full">
         <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan Posisi WIP</h1>
+            <h1 class="text-2xl font-bold mb-4">Laporan Posisi WIP ({{ $state }})</h1>
         </div>
         <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
@@ -56,7 +55,8 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()" title="Previous Month">
+                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()"
+                                                title="Previous Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -65,7 +65,8 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()" title="Next Month">
+                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()"
+                                                title="Next Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -103,7 +104,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{'bg-blue-500 text-white': isToday(date) == true, 'text-gray-700 hover:bg-blue-200': isToday(date) == false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
@@ -129,13 +135,14 @@
                             name="keyword" placeholder="Cari kode atau nama barang..." />
                     </div>
 
-                    <button hx-get="{{ route('report.product-wip-main.search') }}" hx-include="#asofDate-data, #keyword"
-                        hx-target="#prod-receipt-table-body" hx-indicator="#search-spinner"
+                    <button hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}"
+                        hx-include="#asofDate-data, #keyword" hx-target="#prod-receipt-table-body"
+                        hx-indicator="#search-spinner"
                         class="flex-shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">
                         Search
                     </button>
 
-                    <button hx-post="{{ route('report.product-wip-main.export') }}"
+                    <button hx-post="{{ route('report.product-wip-main.export', ['state' => $state]) }}"
                         hx-include="[name=_token], #asofDate-data, #keyword" hx-target="#export-area" hx-swap="innerHTML"
                         hx-indicator="#export-spinner"
                         class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
@@ -146,12 +153,13 @@
                 {{-- Area untuk menampilkan status ekspor dan spinner --}}
                 <div class="flex flex-row items-center gap-2 mt-2 min-h-[40px]">
                     <div id="export-area" class="w-full max-w-lg space-y-2">
-                        <div for="File" class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
+                        <div for="File"
+                            class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
                             <div class="flex items-center justify-center gap-4">
                                 <span class="font-medium"> There are no export queues </span>
 
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="size-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
                                 </svg>
@@ -181,7 +189,8 @@
                 </thead>
 
                 <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.product-wip-main.search') }}" hx-trigger="load" hx-swap="outerHTML">
+                    <tr hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}" hx-trigger="load"
+                        hx-swap="outerHTML">
                         <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');
                         </td>
@@ -196,7 +205,9 @@
     @include('components.hx.toast')
 
     <script>
-        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+            'October', 'November', 'December'
+        ];
         const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
         function app() {
@@ -239,7 +250,8 @@
                     this.datepickerValue = selectedDate.toDateString();
 
                     // Month is zero-based in JS Date; add 1 for YYYY-MM-DD
-                    this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
+                    this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-
+                        2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
 
                     console.log(this.$refs.date.value);
 

@@ -17,10 +17,10 @@ class ProductWipMainController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($state = "active")
     {
 
-        return view('Report.product-wip-main');
+        return view('Report.product-wip-main', ['state' => $state]);
     }
 
     /**

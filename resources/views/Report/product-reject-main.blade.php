@@ -10,7 +10,7 @@
 
     <div class="flex flex-col gap-0 max-h-full">
         <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan PertanggungJawaban Mutasi Barang Reject</h1>
+            <h1 class="text-2xl font-bold mb-4">Laporan PertanggungJawaban Mutasi Barang Reject ({{ $state }})</h1>
         </div>
         <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
@@ -238,14 +238,14 @@
                             </div>
 
                             <!-- Tombol Search -->
-                            <button hx-get="{{ route('report.product-reject-main.search') }}"
+                            <button hx-get="{{ route('report.product-reject-main.search', ['state' => $state]) }}"
                                 hx-include="#fromDate-data, #toDate-data, #keyword"
                                 class="flex-shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Search
                             </button>
 
                             <!-- Tombol Export -->
-                            <button hx-post="{{ route('report.product-reject-main.export') }}"
+                            <button hx-post="{{ route('report.product-reject-main.export', ['state' => $state]) }}"
                                 hx-include="[name=_token], #fromDate-data, #toDate-data, #keyword" hx-target="#export-area"
                                 hx-swap="innerHTML" hx-indicator="#export-spinner"
                                 class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
@@ -311,7 +311,7 @@
                 </thead>
 
                 <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.product-reject-main.search') }}" hx-trigger="load"
+                    <tr hx-get="{{ route('report.product-reject-main.search', ['state' => $state]) }}" hx-trigger="load"
                         hx-swap="outerHTML">
                         <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');

@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductBbMainController extends Controller
 {
-    public function index(string $type)
+    public function index(string $type, string $state = "active")
     {
 
         $title = 'Laporan PertanggungJawaban Mutasi ';
@@ -41,7 +41,7 @@ class ProductBbMainController extends Controller
                 abort(404, 'Invalid product type');
         }
 
-        return view('Report.product-bb-main', compact('type', 'title'));
+        return view('Report.product-bb-main', compact('type', 'title', 'state'));
     }
 
     public function export(string $type, Request $request)

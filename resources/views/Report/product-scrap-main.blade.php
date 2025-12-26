@@ -1,7 +1,6 @@
 @extends('main-layout')
 
 @section('content')
-
     <style>
         [x-cloak] {
             display: none !important;
@@ -10,7 +9,7 @@
 
     <div class="flex flex-col gap-0 max-h-full">
         <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan PertanggungJawaban Mutasi Scrap</h1>
+            <h1 class="text-2xl font-bold mb-4">Laporan PertanggungJawaban Mutasi Scrap ({{ $state }})</h1>
         </div>
         <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
@@ -56,7 +55,8 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()" title="Previous Month">
+                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()"
+                                                title="Previous Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -65,7 +65,8 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()" title="Next Month">
+                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()"
+                                                title="Next Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -103,7 +104,9 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{'bg-blue-500 text-white': isToday(date) == true, 'text-gray-700 hover:bg-blue-200': isToday(date) == false }">
+                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
+                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                        false }">
                                                 </div>
                                             </div>
                                         </template>
@@ -159,7 +162,8 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()" title="Previous Month">
+                                                @click="if (month == 0) { month = 11; year--; } else { month--; } getNoOfDays()"
+                                                title="Previous Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -168,7 +172,8 @@
                                             </button>
                                             <button type="button"
                                                 class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()" title="Next Month">
+                                                @click="if (month == 11) { month = 0; year++; } else { month++; } getNoOfDays()"
+                                                title="Next Month">
                                                 <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -206,7 +211,9 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{'bg-blue-500 text-white': isToday(date) == true, 'text-gray-700 hover:bg-blue-200': isToday(date) == false }">
+                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
+                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                        false }">
                                                 </div>
                                             </div>
                                         </template>
@@ -238,16 +245,18 @@
                             </div>
 
                             <!-- Tombol Search -->
-                            <button hx-get="{{ route('report.product-reject-main.search', ['warehouseId' => 'SCR']) }}"
+                            <button
+                                hx-get="{{ route('report.product-reject-main.search', ['warehouseId' => 'SCR', 'state' => $state]) }}"
                                 hx-include="#fromDate-data, #toDate-data, #keyword"
                                 class="flex-shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Search
                             </button>
 
                             <!-- Tombol Export -->
-                            <button hx-post="{{ route('report.product-reject-main.export', ['warehouseId' => 'SCR']) }}"
-                                hx-include="[name=_token], #fromDate-data, #toDate-data, #keyword" hx-target="#export-area"
-                                hx-swap="innerHTML" hx-indicator="#export-spinner"
+                            <button
+                                hx-post="{{ route('report.product-reject-main.export', ['warehouseId' => 'SCR', 'state' => $state]) }}"
+                                hx-include="[name=_token], #fromDate-data, #toDate-data, #keyword"
+                                hx-target="#export-area" hx-swap="innerHTML" hx-indicator="#export-spinner"
                                 class="flex-shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
                                 Export
                             </button>
@@ -311,8 +320,8 @@
                 </thead>
 
                 <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.product-reject-main.search', ['warehouseId' => 'SCR']) }}" hx-trigger="load"
-                        hx-swap="outerHTML">
+                    <tr hx-get="{{ route('report.product-reject-main.search', ['warehouseId' => 'SCR', 'state' => $state]) }}"
+                        hx-trigger="load" hx-swap="outerHTML">
                         <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');
                         </td>
@@ -328,7 +337,9 @@
 
 
     <script>
-        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+            'October', 'November', 'December'
+        ];
         const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
         function app() {
@@ -371,7 +382,8 @@
                     this.datepickerValue = selectedDate.toDateString();
 
                     // Month is zero-based in JS Date; add 1 for YYYY-MM-DD
-                    this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
+                    this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-
+                        2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
 
                     console.log(this.$refs.date.value);
 

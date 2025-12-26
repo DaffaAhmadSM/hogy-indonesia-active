@@ -83,8 +83,8 @@ Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
     });
 
     Route::group(['prefix' => 'product-scrap-main'], function () {
-        Route::get('/{state}', function () : \Illuminate\View\View {
-            return view('Report.product-scrap-main');
+        Route::get('/{state}', function (string $state = "active") : \Illuminate\View\View {
+            return view('Report.product-scrap-main', ['state' => $state]);
         })->name('report.product-scrap-main');
         Route::post('/export/{state}', [ProductRejectController::class, 'export'])->name('report.product-scrap-main.export');
 
