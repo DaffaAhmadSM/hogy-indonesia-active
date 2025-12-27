@@ -10,8 +10,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body>
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+<body class="h-screen flex flex-col">
+    <div class="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign In</h2>
         </div>
@@ -44,7 +44,15 @@
                 </div>
             </form>
         </div>
+
     </div>
+    <footer class="shrink-0 py-4 text-center">
+        <p>PT Hogy Indonesia</p>
+    </footer>
+
 </body>
+
+
+
 
 </html>

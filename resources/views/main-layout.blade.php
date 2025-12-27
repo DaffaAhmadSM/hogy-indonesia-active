@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DBI Ecustom</title>
+    <title>PT. Hogy Indonesia</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -212,13 +212,21 @@
         </div>
     </header>
 
+    <div class=" border-b border-gray-200 py-3 px-4">
+        <div class="text-sm text-gray-700">
+            <div class="font-semibold">HOGY</div>
+            <div>PT Hogy Indonesia</div>
+            <div>MM 2100 Industrial Town, Blok M3-1 Cikarang Barat, Bekasi 17520</div>
+            <div>P: +62 21 8980165, F: +62 21 8980166, E: purchasing@hogy.co.id</div>
+        </div>
+    </div>
 
     <main class="flex-1 overflow-y-auto">
         @yield('content')
     </main>
 
     <footer class="shrink-0">
-        <p>PT Hogy Indonesia</p>
+        <p>&copy;Copyright PT Hogy Indonesia 2026</p>
     </footer>
 </body>
 
