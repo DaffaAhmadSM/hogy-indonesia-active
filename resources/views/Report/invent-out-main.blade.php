@@ -9,7 +9,7 @@
 
     <div class="flex flex-col gap-0 max-h-full">
         <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan Pengeluaran Barang ({{ $state }})</h1>
+            <h1 class="text-2xl font-bold mb-4">Laporan Pengeluaran Barang {{ $state != 'active' ? $state : '' }}</h1>
         </div>
         <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf

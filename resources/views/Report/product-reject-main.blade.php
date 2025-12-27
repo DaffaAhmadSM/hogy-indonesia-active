@@ -9,7 +9,8 @@
 
     <div class="flex flex-col gap-0 max-h-full">
         <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan PertanggungJawaban Mutasi Barang Reject ({{ $state }})</h1>
+            <h1 class="text-2xl font-bold mb-4">Laporan PertanggungJawaban Mutasi Barang Reject
+                {{ $state != 'active' ? $state : '' }}</h1>
         </div>
         <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
@@ -104,9 +105,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
-                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
-                                                        false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
@@ -211,9 +215,12 @@
                                             <div style="width: 14.28%" class="px-1 mb-1">
                                                 <div @click="getDateValue(date)" x-text="date"
                                                     class="cursor-pointer text-center text-sm rounded-full leading-loose transition ease-in-out duration-100"
-                                                    :class="{ 'bg-blue-500 text-white': isToday(date) ==
-                                                        true, 'text-gray-700 hover:bg-blue-200': isToday(date) ==
-                                                        false }">
+                                                    :class="{
+                                                        'bg-blue-500 text-white': isToday(date) ==
+                                                            true,
+                                                        'text-gray-700 hover:bg-blue-200': isToday(date) ==
+                                                            false
+                                                    }">
                                                 </div>
                                             </div>
                                         </template>
