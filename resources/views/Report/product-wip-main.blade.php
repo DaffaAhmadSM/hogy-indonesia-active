@@ -191,12 +191,12 @@
                 </thead>
 
                 <tbody class="" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}" hx-trigger="load"
+                    {{-- <tr hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}" hx-trigger="load"
                         hx-swap="outerHTML">
                         <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');
                         </td>
-                    </tr>
+                    </tr> --}}
                 </tbody>
             </table>
         </div>

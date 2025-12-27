@@ -333,12 +333,12 @@
                 </thead>
 
                 <tbody class="" id="prod-receipt-table-body">
-                    <tr hx-get="{{ route('report.product-bb-main.search', ['type' => $type, 'state' => $state]) }}"
+                    {{-- <tr hx-get="{{ route('report.product-bb-main.search', ['type' => $type, 'state' => $state]) }}"
                         hx-trigger="load" hx-swap="outerHTML">
                         <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');
                         </td>
-                    </tr>
+                    </tr> --}}
                 </tbody>
             </table>
         </div>
