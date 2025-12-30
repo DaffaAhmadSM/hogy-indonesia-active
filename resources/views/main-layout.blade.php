@@ -227,7 +227,7 @@
     </main>
 
     <footer class="shrink-0">
-        <p>&copy;Copyright PT Hogy Indonesia 2026</p>
+        <p>Copyright PT Hogy Indonesia &copy;2026</p>
     </footer>
 </body>
 
