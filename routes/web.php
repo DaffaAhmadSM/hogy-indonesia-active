@@ -14,7 +14,7 @@ use App\Http\Controllers\ProductRejectController;
 Route::get('/', function () {
     return view('main-layout');
 })
-    ->middleware('auth')
+    ->middleware('custom.auth')
     ->name('home');
 
 Route::get('/login', function () {
@@ -27,12 +27,12 @@ Route::get('/logout', function (Request $request) {
     Session::regenerateToken();
     return redirect('/login');
 })
-    ->middleware('auth')
+    ->middleware('custom.auth')
     ->name('logout');
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
-Route::group(['prefix' => 'report', 'middleware' => 'auth'], function () {
+Route::group(['prefix' => 'report', 'middleware' => 'custom.auth'], function () {
 
     Route::group(['prefix' => 'invent-in-main'], function () {
         Route::get('/{state}', [InventInMainController::class, 'index'])->name('report.invent-in-main');
