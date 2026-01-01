@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProdreceiptV;
+use App\Models\ReportPemasukan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -119,56 +120,64 @@ class InventInMainController extends Controller
             return response()->json(['errors' => $validator->errors()->first()], 422);
         }
 
-        $prod_receipt = ProdreceiptV::orderBy("registrationDate", "desc")
-            ->orderBy("purchRecId")
-            ->orderBy("ItemId")
-            ->orderBy("amount")
-            ->orderBy("price")
-            ->where('isCancel', 0);
+        // return ReportPemasukan::cursorPaginate(10);
+
+        $columns = [
+                "BCTYPE",
+                "NOMORDAFTAR",
+                "TANGGALDAFTAR",
+                "NOMORPENERIMAAN",
+                "PENGIRIM",
+                "NOMORDAFTAR",
+                "TANGGALDAFTAR",
+                "TANGGALPENERIMAAN",
+                "PENGIRIM",
+                "KODEBARANG",
+                "NAMABARANG",
+                "JUMLAH",
+                "SATUAN",
+                "NILAI",
+        ];
+
+        $tableName = (new ReportPemasukan)->getTable();
+        $prod_receipt = ReportPemasukan::select($columns)
+        ->selectRaw("CASE 
+            WHEN BCTYPE = 9 THEN 'BC40'
+            WHEN BCTYPE = 10 THEN 'BC27'
+            WHEN BCTYPE = 11 THEN 'BC23'
+            WHEN BCTYPE = 12 THEN 'BC262'
+            WHEN BCTYPE = 13 THEN 'BC30'
+            WHEN BCTYPE = 14 THEN 'BC25'
+            WHEN BCTYPE = 15 THEN 'BC261'
+            WHEN BCTYPE = 16 THEN 'BC27'
+            ELSE 'UNKNOWN'
+        END as BC_CODE_NAME")
+        ->orderBy("$tableName.NOMORDAFTAR", "desc")
+        ->orderBy("$tableName.KODEBARANG");
 
         $keyword = $request->input('keyword');
 
         $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->toDateString() : Carbon::now();
         $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->toDateString() : Carbon::now();
-        $prod_receipt = $prod_receipt->whereBetween('registrationDate', [$fromDate, $toDate]);
+        $prod_receipt = $prod_receipt->whereBetween("$tableName.TANGGALDAFTAR", [$fromDate, $toDate]);
 
 
         if ($keyword != null) {
-            $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) {
-                $query->where(function ($q) use ($keyword) {
-                    $q->where('requestNo', 'like', "%$keyword%")
-                        ->orWhere('docBc', 'like', "%$keyword%")
-                        ->orWhere('registrationNo', 'like', "%$keyword%")
-                        ->orWhere('invNoVend', 'like', "%$keyword%")
-                        ->orWhere('VendName', 'like', "%$keyword%")
-                        ->orWhere('ItemId', 'like', "%$keyword%")
-                        ->orWhere('ItemName', 'like', "%$keyword%");
+            $prod_receipt = $prod_receipt->when($keyword, function ($query, $keyword) use ($tableName) {
+                $query->where(function ($q) use ($keyword, $tableName) {
+                    $q->where("$tableName.NOMORDAFTAR", 'like', "%$keyword%")
+                        ->orWhere("$tableName.KODEBARANG", 'like', "%$keyword%")
+                        ->orWhere("$tableName.NAMABARANG", 'like', "%$keyword%")
+                        ->orWhere("$tableName.NOMORPENERIMAAN", 'like', "%$keyword%")
+                        ->orWhere("$tableName.PENGIRIM", 'like', "%$keyword%");
                 });
             });
         }
 
 
         $prod_receipt = $prod_receipt
-            ->cursorPaginate(500, [
-                'purchRecId',
-                'transDate',
-                'requestNo',
-                'docBc',
-                'registrationNo',
-                'registrationDate',
-                'invNoVend',
-                'invDateVend',
-                'VendName',
-                'ItemId',
-                'ItemName',
-                'unit',
-                'qty',
-                'currencyCode',
-                'price',
-                'amount',
-                'Notes',
-                'PackCode'
-            ])->withQueryString();
+            ->cursorPaginate(500)->withQueryString();
+        // return $prod_receipt;
 
         return view('Response.Report.InventInMain.search', compact('prod_receipt'));
     }
