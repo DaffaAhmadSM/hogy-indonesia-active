@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use App\Exports\ProductWipExport;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\ProcessProductWipExport;
+use App\Models\ReportWIP;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -131,7 +132,7 @@ class ProductWipMainController extends Controller
     public function hxSearch(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'asofDate' => 'date|date_format:Y-m-d',
+            'asofDate' => 'date|date_format:Y-m-d|nullable',
             'keyword' => 'nullable|string|max:255',
         ]);
 
@@ -139,17 +140,11 @@ class ProductWipMainController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $tableName = (new ReportWIP())->getTable();
 
 
-        $prod_tr = ProdtrV::where('warehouseCode', 'WIP')
-            ->whereIn('type', [
-                'InvAdjust_In',
-                'InvAdjust_Out',
-                'Po_Picked',
-                'So_Picked'
-            ])
-            ->orderBy('productId')
-            ->orderBy('unitId');
+
+        $prod_tr = ReportWIP::orderBy("$tableName.KODEBARANG");
 
         $fromDate = Carbon::createFromFormat('Y-m-d', "1990-01-01");
 
@@ -159,20 +154,19 @@ class ProductWipMainController extends Controller
 
             $asofDate = Carbon::createFromFormat('Y-m-d', $request->input('asofDate'));
 
-            $prod_tr = $prod_tr->whereBetween('transDate', [$fromDate, $asofDate]);
+            // $prod_tr = $prod_tr->whereBetween('transDate', [$fromDate, $asofDate]);
 
         } else {
             $asofDate = Carbon::now();
-            $prod_tr = $prod_tr->whereBetween('transDate', [$fromDate, $asofDate]);
+            // $prod_tr = $prod_tr->whereBetween('transDate', [$fromDate, $asofDate]);
         }
 
         if ($keyword != null) {
             $keyword = $request->input('keyword');
-            $prod_tr->where(function ($query) use ($keyword) {
+            $prod_tr->where(function ($query) use ($keyword, $tableName) {
                 $searchTerm = '%' . $keyword . '%';
-                $query->where('productId', 'like', $searchTerm)
-                    ->orWhere('productName', 'like', $searchTerm)
-                    ->orWhere('unitId', 'like', $searchTerm);
+                $query->where("$tableName.KODEBARANG", 'like', $searchTerm)
+                    ->orWhere("$tableName.NAMABARANG", 'like', $searchTerm);
             });
         }
 
@@ -193,12 +187,11 @@ class ProductWipMainController extends Controller
 
         $prod_tr = Cache::remember($cacheKey, $cacheDuration, function () use ($prod_tr) {
             return $prod_tr
-                ->groupBy('productId', 'productName', 'unitId')
                 ->select(
-                    'productId',
-                    'productName',
-                    'unitId',
-                    DB::raw('ROUND(SUM(originalQty), 2) as jumlah')
+                    "KODEBARANG",
+                    "NAMABARANG",
+                    "SATUAN",
+                    "SALDOAKHIR"
                 )
                 ->cursorPaginate(300)->withQueryString();
         });

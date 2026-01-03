@@ -13,7 +13,7 @@
         </div>
         <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
-            <div class="antialiased font-sans">
+            {{-- <div class="antialiased font-sans">
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
                     <div class="container mx-auto px-4 py-2 md:py-10">
                         <div class="mb-5 w-64">
@@ -121,7 +121,7 @@
 
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
 
 
@@ -153,8 +153,7 @@
                 {{-- Area untuk menampilkan status ekspor dan spinner --}}
                 <div class="flex flex-row items-center gap-2 mt-2 min-h-[40px]">
                     <div id="export-area" class="w-full max-w-lg space-y-2">
-                        <div for="File"
-                            class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
+                        <div for="File" class="block rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6">
                             <div class="flex items-center justify-center gap-4">
                                 <span class="font-medium"> There are no export queues </span>
 
@@ -191,12 +190,11 @@
                 </thead>
 
                 <tbody class="" id="prod-receipt-table-body">
-                    {{-- <tr hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}" hx-trigger="load"
-                        hx-swap="outerHTML">
+                    <tr hx-get="{{ route('report.product-wip-main.search', ['state' => $state]) }}" hx-swap="outerHTML">
                         <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
-                            @include('components.loading-spinner');
+                            {{-- @include('components.loading-spinner'); --}}
                         </td>
-                    </tr> --}}
+                    </tr>
                 </tbody>
             </table>
         </div>
