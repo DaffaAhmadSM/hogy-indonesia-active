@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\ReportMutasiBarang;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -33,100 +34,70 @@ class ExportProductBB implements FromCollection, WithHeadings, ShouldQueue
     }
 
     /**
-     * Match C# logic: Get products first, then query transactions for each (N+1 pattern)
+     * Query using ReportMutasiBarang matching hxSearch logic
      */
     public function collection()
     {
-        $searchTerm = '%' . $this->keyword . '%';
+        $keyword = $this->keyword;
+        $searchTerm = '%' . $keyword . '%';
+        
+        // Map productType array to reportType
+        $reportType = '';
+        if (in_array('BAHAN_BAKU_PENOLONG', $this->productType)) {
+            $reportType = '04 Mutasi Bahan Baku';
+        } elseif (in_array('MESIN_PERALATAN', $this->productType)) {
+            $reportType = '05 Mutasi Mesin dan Peralatan';
+        } elseif (in_array('BARANG_JADI', $this->productType)) {
+            $reportType = '06 Mutasi Barang Jadi';
+        } elseif (in_array('BARANG_REJECT_SCRAP', $this->productType)) {
+            $reportType = ['07 Mutasi Barang Reject', '07 Mutasi Barang Scrap'];
+        } else {
+            $reportType = '04 Mutasi Bahan Baku';
+        }
 
-        // 1. Get list of products (like C# ProductDao.Instance.findListLike)
-        $query = DB::table('product_v')
-            ->select('productId', 'productName', 'unitId', 'productType')
-            ->whereIn('productType', $this->productType);
+        $tableName = (new ReportMutasiBarang())->getTable();
+
+        $products = ReportMutasiBarang::where("$tableName.REPORTTYPE", $reportType)
+            ->orderBy("$tableName.KODEBARANG");
 
         // Apply keyword search if provided
-        if ($this->keyword) {
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('productId', 'like', $searchTerm)
-                    ->orWhere('productName', 'like', $searchTerm)
-                    ->orWhere('unitId', 'like', $searchTerm);
+        if ($keyword) {
+            $products->where(function ($q) use ($searchTerm) {
+                $q->where('KODEBARANG', 'like', $searchTerm)
+                    ->orWhere('NAMABARANG', 'like', $searchTerm)
+                    ->orWhere('SATUAN', 'like', $searchTerm);
             });
         }
 
-        $query->orderBy('productId', 'asc');
+        $products = $products
+            ->whereBetween('TRANSDATE', [$this->fromDate, $this->toDate])
+            ->get([
+                "KODEBARANG",
+                "NAMABARANG",
+                "SATUAN",
+                "SALDOAWAL",
+                "PEMASUKAN",
+                "PENGELUARAN",
+                "PENYESUAIAN",
+                "SALDOBUKU",
+                "STOCKOPNAME",
+                "SELISIH"
+            ]);
 
-        $products = $query->get();
-
-        // 2. For each product, calculate transaction data (N+1 pattern like C#)
-        $results = $products->map(function ($product) {
-            // Saldo Awal
-            $saldoAwal = DB::table('prodtr_v')
-                ->where('warehouseCode', $this->warehouseId)
-                ->where('productId', $product->productId)
-                ->where('transDate', '<', $this->fromDate)
-                ->whereIn('type', ['InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked'])
-                ->sum('originalQty');
-            
-            $saldoAwal = abs($saldoAwal ?? 0);
-
-            // Masuk (In)
-            $masuk = DB::table('prodtr_v')
-                ->where('warehouseCode', $this->warehouseId)
-                ->where('productId', $product->productId)
-                ->whereBetween('transDate', [$this->fromDate, $this->toDate])
-                ->whereIn('type', ['InvAdjust_In', 'Po_Picked'])
-                ->sum('originalQty');
-            
-            $masuk = abs($masuk ?? 0);
-
-            // Keluar (Out)
-            $keluar = DB::table('prodtr_v')
-                ->selectRaw('ABS(SUM(originalQty)) as qtyOut')
-                ->where('warehouseCode', $this->warehouseId)
-                ->where('productId', $product->productId)
-                ->whereBetween('transDate', [$this->fromDate, $this->toDate])
-                ->whereIn('type', ['InvAdjust_Out', 'So_Picked'])
-                ->value('qtyOut');
-            
-            $keluar = abs($keluar ?? 0);
-
-            // Stock Opname
-            $stockOphname = DB::table('stockoph_v')
-                ->where('productId', $product->productId)
-                ->where('warehouseId', $this->warehouseId)
-                ->where('posted', 1)
-                ->whereBetween('transDate', [$this->fromDate, $this->toDate])
-                ->sum('adjustedQty');
-            
-            $stockOphname = abs($stockOphname ?? 0);
-
-            // Apply abs to ensure positive values (matching C# Math.Abs())
-            $saldoAwal = abs($saldoAwal);
-            $masuk = abs($masuk);
-            $keluar = abs($keluar);
-            $penyesuaian = 0; // C# sets this to 0
-            $stockOphname = abs($stockOphname);
-
-            // SaldoBuku = (SaldoAwal + Masuk) - Keluar
-            $saldoBuku = round(($saldoAwal + round($masuk, 2)) - round($keluar, 2), 3);
-
-            // Selisih = StockOphname - SaldoBuku
-            $selisih = round($stockOphname - $saldoBuku, 3);
-
+        return $products->map(function ($product) {
             return [
-                $product->productId,
-                $product->productName,
-                $product->unitId,
-                $saldoAwal,
-                $masuk,
-                $keluar,
-                $stockOphname,
-                $saldoBuku,
-                $selisih,
+                $product->KODEBARANG,
+                $product->NAMABARANG,
+                $product->SATUAN,
+                $product->SALDOAWAL,
+                $product->PEMASUKAN,
+                $product->PENGELUARAN,
+                $product->PENYESUAIAN,
+                $product->SALDOBUKU,
+                $product->STOCKOPNAME,
+                $product->SELISIH,
             ];
         });
-
-        return $results;
     }
 
     /**
@@ -135,14 +106,15 @@ class ExportProductBB implements FromCollection, WithHeadings, ShouldQueue
     public function headings(): array
     {
         return [
-            'ID Produk',
-            'Nama Produk',
-            'Unit',
+            'Kode Barang',
+            'Nama Barang',
+            'Satuan',
             'Saldo Awal',
-            'Masuk',
-            'Keluar',
-            'Stock Opname',
+            'Pemasukan',
+            'Pengeluaran',
+            'Penyesuaian',
             'Saldo Buku',
+            'Stock Opname',
             'Selisih',
         ];
     }

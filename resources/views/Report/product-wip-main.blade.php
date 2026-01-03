@@ -7,11 +7,11 @@
         }
     </style>
 
-    <div class="flex flex-col gap-0 max-h-full">
-        <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan Posisi WIP {{ $state != 'active' ? $state : '' }}</h1>
+    <div class="flex flex-col gap-0 w-full flex-1 min-h-0">
+        <div class="flex align-middle justify-center shrink-0">
+            <h1 class="text-xl font-bold mb-2">Laporan Posisi WIP {{ $state != 'active' ? $state : '' }}</h1>
         </div>
-        <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
+        <div class="flex flex-row px-6 py-2 shrink-0" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
             {{-- <div class="antialiased font-sans">
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
@@ -125,8 +125,8 @@
 
 
 
-            <div class="flex flex-col gap-1 text-neutral-600 px-4 py-2">
-                <label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
+            <div class="flex flex-col gap-1 text-neutral-600 px-4 py-1 shrink-0">
+                <label for="keyword" class="w-fit pl-0.5 text-sm font-semibold">Search</label>
 
                 <div class="flex flex-row gap-2 w-full items-end">
                     <div class="flex-grow">
@@ -176,7 +176,7 @@
             </div>
         </div>
 
-        <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
+        <div class="flex-1 w-full overflow-auto min-h-0">
             <table class="w-full table-fixed border-separate border-spacing-0">
                 <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
                     <tr class="*:font-medium *:text-gray-900">

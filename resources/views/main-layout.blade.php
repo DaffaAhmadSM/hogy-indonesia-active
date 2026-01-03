@@ -9,9 +9,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="h-screen md:h-[100dvh] overflow-hidden flex flex-col max-w-screen mx-auto p-4 max-h-screen">
-    <header class="bg-white">
-        <div class="flex h-16 items-center justify-between">
+<body class="h-screen md:h-[100dvh] overflow-hidden flex flex-col max-w-screen mx-auto px-4 py-2 max-h-screen">
+    <header class="bg-white shrink-0">
+        <div class="flex h-12 items-center justify-between">
             <div class="hidden md:block">
                 <nav aria-label="Global">
                     <ul class="flex items-center gap-6 text-md">
@@ -118,8 +118,8 @@
         </div>
     </header>
 
-    <div class=" border-b border-gray-200 py-3 px-4">
-        <div class="text-sm text-gray-700">
+    <div class="border-b border-gray-200 py-2 px-4 shrink-0">
+        <div class="text-xs text-gray-700">
             <div class="font-semibold">HOGY</div>
             <div>PT Hogy Indonesia</div>
             <div>MM 2100 Industrial Town, Blok M3-1 Cikarang Barat, Bekasi 17520</div>
@@ -127,13 +127,13 @@
         </div>
     </div>
 
-    <main class="flex-1 overflow-y-auto flex flex-col items-center-safe">
-        <p class="px-4 py-2 text-gray-600">Custom and Excise Reports</p>
+    <main class="flex-1 overflow-y-auto flex flex-col items-center min-h-0">
+        <p class="px-4 py-1.5 text-gray-600 text-sm shrink-0">Custom and Excise Reports</p>
         @yield('content')
     </main>
 
-    <footer class="shrink-0">
-        <p>Copyright PT Hogy Indonesia &copy;2026</p>
+    <footer class="shrink-0 py-1.5">
+        <p class="text-xs text-gray-600">Copyright PT Hogy Indonesia &copy;2026</p>
     </footer>
 </body>
 

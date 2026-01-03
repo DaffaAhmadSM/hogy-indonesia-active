@@ -7,17 +7,17 @@
         }
     </style>
 
-    <div class="flex flex-col gap-0 max-h-full">
-        <div class="flex align-middle justify-center">
-            <h1 class="text-2xl font-bold mb-4">Laporan Pemasukan Barang {{ $state != 'active' ? $state : '' }}</h1>
+    <div class="flex flex-col gap-0 w-full flex-1 min-h-0">
+        <div class="flex align-middle justify-center shrink-0">
+            <h1 class="text-xl font-bold mb-2">Laporan Pemasukan Barang {{ $state != 'active' ? $state : '' }}</h1>
         </div>
-        <div class="flex flex-row px-6 py-2" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
+        <div class="flex flex-row px-6 py-2 shrink-0" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
             @csrf
-            <div class="antialiased font-sans">
+            <div class="antialiased font-sans shrink-0">
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
-                    <div class="container mx-auto px-4 py-2 md:py-10">
-                        <div class="mb-5 w-64">
-                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">From date</label>
+                    <div class="container mx-auto px-4 py-1">
+                        <div class="mb-2 w-64">
+                            <label for="datepicker" class="font-semibold mb-1 text-gray-700 block text-sm">From date</label>
                             <div class="relative">
                                 <input type="hidden" name="fromDate" x-ref="date" id="fromDate-data"
                                     value="{{ request('fromDate') }}">
@@ -123,11 +123,11 @@
                 </div>
             </div>
 
-            <div class="antialiased font-sans">
+            <div class="antialiased font-sans shrink-0">
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
-                    <div class="container mx-auto px-4 py-2 md:py-10">
-                        <div class="mb-5 w-64">
-                            <label for="datepicker" class="font-bold mb-1 text-gray-700 block">To date</label>
+                    <div class="container mx-auto px-4 py-1">
+                        <div class="mb-2 w-64">
+                            <label for="datepicker" class="font-semibold mb-1 text-gray-700 block text-sm">To date</label>
                             <div class="relative">
                                 <input type="hidden" name="toDate" x-ref="date" id="toDate-data"
                                     value="{{ request('toDate') }}">
@@ -233,10 +233,10 @@
                 </div>
             </div>
 
-            <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600" x-data="{ search: '' }">
-                <div class="container mx-auto px-4 py-2">
-                    <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 px-4 py-2">
-                        <label for="keyword" class="w-fit pl-0.5 text-sm">Search</label>
+            <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 shrink-0" x-data="{ search: '' }">
+                <div class="container mx-auto px-4 py-1">
+                    <div class="flex w-full max-w-md flex-col gap-1 text-neutral-600 px-4 py-1">
+                        <label for="keyword" class="w-fit pl-0.5 text-sm font-semibold">Search</label>
 
                         <!-- Baris untuk input dan tombol aksi -->
                         <!-- 'items-end' akan menyelaraskan semua item di bagian bawah -->
@@ -329,64 +329,58 @@
 			</div> --}}
         </div>
 
-        <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-            <div class="max-h-screen w-full max-w-screen overflow-y-auto overflow-x-hidden">
-                <table class="w-full table-fixed border-separate border-spacing-0">
-                    <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
-                        <tr class="text-center">
-                            <th colspan="3"
-                                class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400 border-r-0">
-                                Data Pemasukan Barang
-                            </th>
-                            <th colspan="2"
-                                class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400">
-                                Bukti Pengiriman Barang
-                            </th>
+        <div class="flex-1 w-full overflow-auto min-h-0">
+            <table class="w-full table-fixed border-separate border-spacing-0">
+                <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+                    <tr class="text-center">
+                        <th colspan="3"
+                            class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400 border-r-0">
+                            Data Pemasukan Barang
+                        </th>
+                        <th colspan="2"
+                            class="px-3 py-2 whitespace-normal break-words text-center border border-gray-400">
+                            Bukti Pengiriman Barang
+                        </th>
 
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Pengirim Barang</th>
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Kode barang</th>
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Nama barang</th>
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Jumlah</th>
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Satuan</th>
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Nilai</th>
-                        </tr>
-                        <tr class="text-center">
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">Jenis
-                            </th>
-                            <th
-                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
-                                Nomor</th>
-                            <th
-                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0 border-r-0">
-                                Tanggal</th>
-                            <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">
-                                nomor</th>
-                            <th
-                                class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
-                                tanggal</th>
-                        </tr>
-                    </thead>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Pengirim Barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Kode barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Nama barang</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Jumlah</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Satuan</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Nilai</th>
+                    </tr>
+                    <tr class="text-center">
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">Jenis
+                        </th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
+                            Nomor</th>
+                        <th
+                            class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0 border-r-0">
+                            Tanggal</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">
+                            nomor</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
+                            tanggal</th>
+                    </tr>
+                </thead>
 
-                    <tbody class="" id="prod-receipt-table-body">
+                <tbody class="" id="prod-receipt-table-body">
 
-                    <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
-                        <tr hx-get="{{ route('report.invent-in-main.search', ['state' => $state]) }}" hx-trigger="load"
-                            hx-swap="outerHTML">
-                            <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
-                                @include('components.loading-spinner');
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-
+                <tbody class="divide-y divide-gray-200" id="prod-receipt-table-body">
+                    <tr hx-get="{{ route('report.invent-in-main.search', ['state' => $state]) }}" hx-trigger="load"
+                        hx-swap="outerHTML">
+                        <td colspan="4" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
+                            @include('components.loading-spinner');
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         @include('components.hx.toast')

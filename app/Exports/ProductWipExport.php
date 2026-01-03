@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\ProdtrV;
+use App\Models\ReportWIP;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +12,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\WithCustomQuerySize;
 
@@ -48,34 +47,25 @@ class ProductWipExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
 
     public function query(): Builder
     {
-        $fromDate = "1990-01-01";
-        $asofDate = $this->asofDate ? Carbon::createFromFormat('Y-m-d', $this->asofDate) : Carbon::now();
+        $tableName = (new ReportWIP())->getTable();
+        $keyword = $this->keyword;
 
-        $query = ProdtrV::query()
-            ->where('warehouseCode', 'WIP')
-            ->whereIn('type', ['InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked'])
-            ->whereBetween('transDate', [$fromDate, $asofDate])
-            ->groupBy('productId', 'productName', 'unitId')
-            ->select(
-                'productId',
-                'productName',
-                'unitId',
-                DB::raw('ROUND(SUM(originalQty), 2) as jumlah')
-            )
-            ->orderBy('productId')
-            ->orderBy('unitId');
+        $prod_tr = ReportWIP::orderBy("$tableName.KODEBARANG");
 
-        // Terapkan filter keyword jika ada
-        if ($this->keyword) {
-            $searchTerm = '%' . $this->keyword . '%';
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('productId', 'like', $searchTerm)
-                    ->orWhere('productName', 'like', $searchTerm)
-                    ->orWhere('unitId', 'like', $searchTerm);
+        if ($keyword != null) {
+            $prod_tr->where(function ($query) use ($keyword, $tableName) {
+                $searchTerm = '%' . $keyword . '%';
+                $query->where("$tableName.KODEBARANG", 'like', $searchTerm)
+                    ->orWhere("$tableName.NAMABARANG", 'like', $searchTerm);
             });
         }
 
-        return $query;
+        return $prod_tr->select(
+            "KODEBARANG",
+            "NAMABARANG",
+            "SATUAN",
+            "SALDOAKHIR"
+        );
     }
 
     /**
@@ -86,10 +76,10 @@ class ProductWipExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
     public function headings(): array
     {
         return [
-            'Kode Produk',
-            'Nama Produk',
+            'Kode Barang',
+            'Nama Barang',
             'Satuan',
-            'Jumlah Total',
+            'Saldo Akhir',
         ];
     }
 
@@ -102,10 +92,10 @@ class ProductWipExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
     public function map($row): array
     {
         return [
-            $row->productId,
-            $row->productName,
-            $row->unitId,
-            $row->jumlah,
+            $row->KODEBARANG,
+            $row->NAMABARANG,
+            $row->SATUAN,
+            $row->SALDOAKHIR,
         ];
     }
 }
