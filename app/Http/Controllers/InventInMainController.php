@@ -150,6 +150,7 @@ class InventInMainController extends Controller
             WHEN BCTYPE = 14 THEN 'BC25'
             WHEN BCTYPE = 15 THEN 'BC261'
             WHEN BCTYPE = 16 THEN 'BC27'
+            WHEN BCTYPE = 17 THEN 'BC41'
             ELSE 'UNKNOWN'
         END as BC_CODE_NAME")
         ->orderBy("$tableName.NOMORDAFTAR", "desc")

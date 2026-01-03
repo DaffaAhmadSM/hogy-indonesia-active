@@ -344,7 +344,7 @@
                             </th>
 
                             <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
-                                rowspan="2">Pengirim Barang</th>
+                                rowspan="2">Penerima Barang</th>
                             <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
                                 rowspan="2">Kode barang</th>
                             <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
