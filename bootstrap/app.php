@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'custom.auth' => \App\Http\Middleware\CustomAuth::class,
         ]);
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
