@@ -10,9 +10,11 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENERIMA }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NAMABARANG }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->JUMLAH }}</td>
+         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->JUMLAH, 2, ',', '.') }}
+        </td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SATUAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NILAI }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->NILAI, 2, ',', '.') }}
+        </td>
     </tr>
 @endforeach
 @if ($prod_receipt->hasMorePages())

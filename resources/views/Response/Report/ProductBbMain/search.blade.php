@@ -3,13 +3,22 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NAMABARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SATUAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SALDOAWAL }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PEMASUKAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENGELUARAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENYESUAIAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SALDOBUKU }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->STOCKOPNAME }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SELISIH }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SALDOAWAL, 2, ',', '.') }}
+        </td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->PEMASUKAN, 2, ',', '.') }}
+        </td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">
+            {{ number_format($item->PENGELUARAN, 2, ',', '.') }}
+        </td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">
+            {{ number_format($item->PENYESUAIAN, 2, ',', '.') }}
+        </td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SALDOBUKU, 2, ',', '.') }}
+        </td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">
+            {{ number_format($item->STOCKOPNAME, 2, ',', '.') }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SELISIH, 2, ',', '.') }}
+        </td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KETERANGAN }}</td>
     </tr>
 @endforeach

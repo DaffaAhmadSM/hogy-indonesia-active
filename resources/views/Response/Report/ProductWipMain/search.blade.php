@@ -3,7 +3,7 @@
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NAMABARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SATUAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SALDOAKHIR, 0, '.', '') }}
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SALDOAKHIR, 2, ',', '.') }}
         </td>
     </tr>
 @endforeach
