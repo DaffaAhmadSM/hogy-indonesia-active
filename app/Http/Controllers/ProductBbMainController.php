@@ -7,6 +7,7 @@ use App\Models\ProductV;
 use Illuminate\Http\Request;
 use App\Exports\ExportProductBB;
 use App\Jobs\ProcessProductBBExport;
+use App\Models\ReportMutasiBarang;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -21,21 +22,21 @@ class ProductBbMainController extends Controller
 
         $title = 'Laporan PertanggungJawaban Mutasi ';
         switch ($type) {
-            case 'BB':
-                $type = 'BAHAN_BAKU';
-                $title .= 'Bahan Baku';
-                break;
-            case 'BP':
-                $type = 'BAHAN_PENOLONG';
-                $title .= 'Bahan Penolong';
+            case 'BBP':
+                $type = 'BAHAN_BAKU_PENOLONG';
+                $title .= 'Bahan Baku dan Penolong';
                 break;
             case 'BJ':
                 $type = 'BARANG_JADI';
                 $title .= 'Barang Jadi';
                 break;
             case 'MP':
-                $type = "MESIN;PERALATAN";
+                $type = "MESIN_PERALATAN";
                 $title .= 'Mesin & Peralatan';
+                break;
+            case 'BS':
+                $type = 'BARANG_REJECT_SCRAP';
+                $title .= 'Barang Reject dan Scrap';
                 break;
             default:
                 abort(404, 'Invalid product type');
@@ -146,95 +147,59 @@ class ProductBbMainController extends Controller
         // 2. SET DEFAULTS & GET INPUTS
         $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
         $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
-        $warehouseId = '';
-        if($type == "BARANG_JADI"){
-            $warehouseId = 'FGS';
-        }else {
-            $warehouseId = $validated['warehouseId'] ?? 'WH';
+        $reportType = '';
+        switch ($type) {
+            case 'BAHAN_BAKU_PENOLONG':
+                $reportType = '04 Mutasi Bahan Baku';
+                break;
+            case 'MESIN_PERALATAN': 
+                $reportType = '05 Mutasi Mesin dan Peralatan';
+                break;
+            case 'BARANG_JADI':
+                $reportType = '06 Mutasi Barang Jadi';
+                break;
+            case 'BARANG_REJECT_SCRAP':
+                $reportType = ['07 Mutasi Barang Reject', '07 Mutasi Barang Scrap'];
+                break;
+            default:
+                $reportType = '04 Mutasi Bahan Baku';
+                break;
         }
-        $productType = $type ?: 'BAHAN_BAKU';
         $keyword = $validated['keyword'] ?? null;
         $searchTerm = '%' . $keyword . '%';
 
-        $productTypeArray = explode(';', $productType);
+        $tableName = (new ReportMutasiBarang())->getTable();
 
         // 3. Match C# logic: First get list of products (like ProductDao.Instance.findListLike)
-        $query = DB::table('product_v')
-            ->select('productId', 'productName', 'unitId', 'productType')
-            ->whereIn('productType', $productTypeArray);
+        $products = ReportMutasiBarang::where("$tableName.REPORTTYPE", $reportType)
+        ->orderBy("$tableName.KODEBARANG");
 
         // Apply keyword search if provided
         if ($keyword) {
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('productId', 'like', $searchTerm)
-                    ->orWhere('productName', 'like', $searchTerm)
-                    ->orWhere('unitId', 'like', $searchTerm);
+            $products->where(function ($q) use ($searchTerm) {
+                $q->where('KODEBARANG', 'like', $searchTerm)
+                    ->orWhere('NAMABARANG', 'like', $searchTerm)
+                    ->orWhere('SATUAN', 'like', $searchTerm);
             });
         }
 
-        $query->orderBy('productId', 'asc');
-
-        // Paginate the products
-        $products = $query->cursorPaginate(400);
-
-        // 4. For each product, calculate transaction data (N+1 pattern like C#)
-        $products->through(function ($product) use ($fromDate, $toDate, $warehouseId) {
-            // Saldo Awal
-            $saldoAwal = DB::table('prodtr_v')
-                ->where('warehouseCode', $warehouseId)
-                ->where('productId', $product->productId)
-                ->where('transDate', '<', $fromDate)
-                ->whereIn('type', ['InvAdjust_In', 'InvAdjust_Out', 'Po_Picked', 'So_Picked'])
-                ->sum('originalQty');
-            
-            $product->saldoAwal = abs($saldoAwal ?? 0);
-
-            // Masuk (In)
-            $masuk = DB::table('prodtr_v')
-                ->where('warehouseCode', $warehouseId)
-                ->where('productId', $product->productId)
-                ->whereBetween('transDate', [$fromDate, $toDate])
-                ->whereIn('type', ['InvAdjust_In', 'Po_Picked'])
-                ->sum('originalQty');
-            
-            $product->masuk = abs($masuk ?? 0);
-
-            // Keluar (Out)
-            $keluar = DB::table('prodtr_v')
-                ->selectRaw('ABS(SUM(originalQty)) as qtyOut')
-                ->where('warehouseCode', $warehouseId)
-                ->where('productId', $product->productId)
-                ->whereBetween('transDate', [$fromDate, $toDate])
-                ->whereIn('type', ['InvAdjust_Out', 'So_Picked'])
-                ->value('qtyOut');
-            
-            $product->keluar = abs($keluar ?? 0);
-
-            // Stock Opname
-            $stockOphname = DB::table('stockoph_v')
-                ->where('productId', $product->productId)
-                ->where('warehouseId', $warehouseId)
-                ->where('posted', 1)
-                ->whereBetween('transDate', [$fromDate, $toDate])
-                ->sum('adjustedQty');
-            
-            $product->stockOphname = abs($stockOphname ?? 0);
-
-            // Apply abs to ensure positive values (matching C# Math.Abs())
-            $product->saldoAwal = abs($product->saldoAwal);
-            $product->masuk = abs($product->masuk);
-            $product->keluar = abs($product->keluar);
-            $product->penyesuaian = 0; // C# sets this to 0
-            $product->stockOphname = abs($product->stockOphname);
-
-            // SaldoBuku = (SaldoAwal + Masuk) - Keluar
-            $product->saldoBuku = round(($product->saldoAwal + round($product->masuk, 2)) - round($product->keluar, 2), 3);
-
-            // Selisih = StockOphname - SaldoBuku
-            $product->selisih = round($product->stockOphname - $product->saldoBuku, 3);
-
-            return $product;
-        });
+        // 4. PAGINATE & CACHE RESULTS
+        $products = $products
+                ->whereBetween('TRANSDATE', [$fromDate, $toDate])
+                ->cursorPaginate(200, [
+                    "RECID",
+                    "KODEBARANG",
+                    "NAMABARANG",
+                    "SATUAN",
+                    "SALDOAWAL",
+                    "PEMASUKAN",
+                    "PENGELUARAN",
+                    "PENYESUAIAN",
+                    "SALDOBUKU",
+                    "STOCKOPNAME",
+                    "SELISIH"
+                ]);
+        // return $products;
 
         // 5. RENDER VIEW
         return view('Response.Report.ProductBbMain.search', compact('products'));

@@ -329,16 +329,21 @@
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Stock Opname
                         </th>
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Selisih</th>
+
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0">Keterangan
+                        </th>
+
+
                     </tr>
                 </thead>
 
                 <tbody class="" id="prod-receipt-table-body">
-                    {{-- <tr hx-get="{{ route('report.product-bb-main.search', ['type' => $type, 'state' => $state]) }}"
+                    <tr hx-get="{{ route('report.product-bb-main.search', ['type' => $type, 'state' => $state]) }}"
                         hx-trigger="load" hx-swap="outerHTML">
                         <td colspan="10" class="px-3 py-2 whitespace-normal break-words align-middle text-center">
                             @include('components.loading-spinner');
                         </td>
-                    </tr> --}}
+                    </tr>
                 </tbody>
             </table>
         </div>

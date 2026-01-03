@@ -1,16 +1,16 @@
 @foreach ($products->items() as $item)
     <tr class="*:text-gray-900 *:first:font-medium">
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->productId }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->productName	 }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->unitId}}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->saldoAwal, 3, '.', ',') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->masuk, 3, '.', ',') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->keluar, 3, '.', ',') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0.000</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->saldoBuku, 3, '.', ',') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->stockOphname, 3, '.', ',') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->selisih, 3, '.', ',') }}</td>
-
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NAMABARANG }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SATUAN }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SALDOAWAL }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PEMASUKAN }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENGELUARAN }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENYESUAIAN }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SALDOBUKU }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->STOCKOPNAME }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SELISIH }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KETERANGAN }}</td>
     </tr>
 @endforeach
 @if ($products->hasMorePages())
