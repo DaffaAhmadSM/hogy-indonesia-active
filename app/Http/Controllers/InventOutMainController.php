@@ -138,7 +138,12 @@ class InventOutMainController extends Controller
         $path = 'reports/';
         $fullPathName = $path . $fileName;
 
-        (new \App\Exports\ExportInvtOutMain($fromDate, $toDate, $keywords))->store($fullPathName, 'public');
+        // Delete existing file if exists
+        if (\Storage::disk('public')->exists($fullPathName)) {
+            \Storage::disk('public')->delete($fullPathName);
+        }
+
+        (new \App\Exports\ExportInvtOutMain($fromDate, $toDate, $keywords))->queue($fullPathName, 'public');
 
         $toast = [
             'showToast' => [
