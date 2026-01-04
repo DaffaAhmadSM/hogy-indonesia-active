@@ -99,7 +99,13 @@ class InventInMainController extends Controller
         $path = 'reports/';
         $fullPathName = $path . $fileName;
 
-        (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->store($fullPathName, 'public');
+        // Delete existing file if present
+        if (\Storage::disk('public')->exists($fullPathName)) {
+            \Storage::disk('public')->delete($fullPathName);
+        }
+
+        // Queue the export job
+        (new \App\Exports\ExportEnvtInMain($fromDate, $toDate, $keywords))->queue($fullPathName, 'public');
 
         $toast = ['showToast' => ['message' => 'Ekspor akan siap dalam beberapa saat.', 'type' => 'success']];
         $pollingView = view('components.hx.pool', ['filename' => $fileName, 'checkRoute' => 'report.inventInMain.export-status'])->render();

@@ -2,40 +2,34 @@
     <thead>
         <tr>
             <th>Jenis</th>
-            <th>No Aju</th>
             <th>No Daftar</th>
             <th>Tgl Daftar</th>
-            <th>Nomor</th>
-            <th>Tgl Terima</th>
+            <th>Nomor Penerimaan</th>
+            <th>Tgl Penerimaan</th>
             <th>Pengirim</th>
-            <th>Kode barang</th>
-            <th>Nama barang</th>
-            <th>QTY</th>
+            <th>Kode Barang</th>
+            <th>Nama Barang</th>
+            <th>Jumlah</th>
             <th>Satuan</th>
-            <th>Harga</th>
             <th>Nilai</th>
-            <th>Keterangan</th>
         </tr>
-        </thead>
+    </thead>
 
-        <tbody>
-            @foreach ($prod_receipt as $item)
-                <tr>
-                    <td>{{ $item->docBc }}</td>
-                    <td>{{ $item->requestNo }}</td>
-                    <td>{{ $item->registrationNo }}</td>
-                    <td>{{ $item->registrationDate }}</td>
-                    <td>{{ $item->PackCode }}</td>
-                    <td>{{ $item->transDate }}</td>
-                    <td>{{ $item->VendName }}</td>
-                    <td>{{ $item->ItemId }}</td>
-                    <td>{{ $item->ItemName }}</td>
-                    <td>{{ $item->qty }}</td>
-                    <td>{{ $item->unit }}</td>
-                    <td>{{ $item->price }}</td>
-                    <td>{{ $item->amount }}</td>
-                    <td>{{ $item->Notes }}</td>
-                </tr>
-            @endforeach
-        </tbody>
+    <tbody>
+        @foreach ($prod_receipt as $item)
+            <tr>
+                <td>{{ $item->BC_CODE_NAME }}</td>
+                <td>{{ $item->NOMORDAFTAR }}</td>
+                <td>{{ $item->TANGGALDAFTAR }}</td>
+                <td>{{ $item->NOMORPENERIMAAN }}</td>
+                <td>{{ $item->TANGGALPENERIMAAN }}</td>
+                <td>{{ $item->PENGIRIM }}</td>
+                <td>{{ $item->KODEBARANG }}</td>
+                <td>{{ $item->NAMABARANG }}</td>
+                <td>{{ $item->JUMLAH }}</td>
+                <td>{{ $item->SATUAN }}</td>
+                <td>{{ $item->NILAI }}</td>
+            </tr>
+        @endforeach
+    </tbody>
 </table>
