@@ -11,18 +11,21 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithEvents, WithCustomStartCell, WithTitle
+class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle, WithChunkReading, WithEvents
 {
 
     use Exportable, Queueable;
 
+    public $timeout = 1200; // 20 minutes
+
     protected $fromDate;
     protected $toDate;
     protected $keywords;
+    private $rowNumber = 0;
 
 
     public function __construct(String $fromDate, String $toDate, $keywords)
@@ -90,11 +93,10 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithEvent
      */
     public function map($item): array
     {
-        static $rowNumber = 0;
-        $rowNumber++;
+        $this->rowNumber++;
         
         return [
-            $rowNumber,
+            $this->rowNumber,
             $item->BC_CODE_NAME,
             $item->NOMORDAFTAR,
             $item->TANGGALDAFTAR,
@@ -108,21 +110,25 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithEvent
             $item->NILAI,
         ];
     }
-
-    /**
-     * Start cell for data
-     */
-    public function startCell(): string
-    {
-        return 'A11';
-    }
-
     /**
      * Sheet title
      */
     public function title(): string
     {
         return 'Laporan Pemasukan';
+    }
+
+    /**
+     * Chunk size for reading data
+     */
+    public function chunkSize(): int
+    {
+        return 1000;
+    }
+
+     public function batchSize(): int
+    {
+        return 1000;
     }
 
     /**
@@ -133,6 +139,12 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithEvent
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet;
+                $sheet->insertNewRowBefore(1, 10);
+
+                $lastRow = $sheet->getHighestRow();
+                for ($i = 11; $i <= $lastRow; $i++) {
+                    $sheet->setCellValue('A' . $i, $i - 10);
+                }
                 
                 // Company header
                 $sheet->setCellValue('A1', 'HOGY');
