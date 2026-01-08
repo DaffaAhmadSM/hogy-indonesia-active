@@ -228,6 +228,46 @@ class ExportInvtOutMain implements FromQuery, WithMapping, ShouldQueue, WithEven
                             ],
                         ],
                     ]);
+                    
+                    // Format Jumlah and Nilai columns with thousand separator and 2 decimals
+                    $sheet->getStyle('J11:J' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $sheet->getStyle('L11:L' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    
+                    // Add Grand Total row
+                    $grandTotalRow = $lastRow + 1;
+                    $sheet->setCellValue('I' . $grandTotalRow, 'GRAND TOTAL');
+                    $sheet->setCellValue('J' . $grandTotalRow, '=SUM(J11:J' . $lastRow . ')');
+                    $sheet->setCellValue('L' . $grandTotalRow, '=SUM(L11:L' . $lastRow . ')');
+                    
+                    // Style Grand Total row with header color
+                    $sheet->getStyle('A' . $grandTotalRow . ':L' . $grandTotalRow)->applyFromArray([
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
+                            'size' => 10,
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'C0504D'],
+                        ],
+                        'alignment' => [
+                            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                                'color' => ['rgb' => '000000'],
+                            ],
+                        ],
+                    ]);
+                    
+                    // Format Grand Total numbers with thousand separator and 2 decimals
+                    $sheet->getStyle('J' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $sheet->getStyle('L' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    
+                    // Merge cells for "GRAND TOTAL" label
+                    $sheet->mergeCells('A' . $grandTotalRow . ':I' . $grandTotalRow);
                 }
             },
         ];

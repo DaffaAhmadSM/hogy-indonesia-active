@@ -204,16 +204,16 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithEvent
                 ]);
                 
                 // Merge cells for headers
-                $sheet->mergeCells('A9:A10'); // No
-                $sheet->mergeCells('B9:D9');  // Dokumen pabean
-                $sheet->mergeCells('E9:F9');  // Bukti penerimaan barang
-                $sheet->mergeCells('G9:G10'); // Pengirim barang
-                $sheet->mergeCells('H9:H10'); // Kode barang
-                $sheet->mergeCells('I9:I10'); // Nama barang
-                $sheet->mergeCells('J9:J10'); // Jumlah
-                $sheet->mergeCells('K9:K10'); // Satuan
-                $sheet->mergeCells('L9:L10'); // Nilai
-                
+                $sheet->mergeCells('A9:A10');
+                $sheet->mergeCells('B9:D9');
+                $sheet->mergeCells('E9:F9');
+                $sheet->mergeCells('G9:G10');
+                $sheet->mergeCells('H9:H10');
+                $sheet->mergeCells('I9:I10');
+                $sheet->mergeCells('J9:J10');
+                $sheet->mergeCells('K9:K10');
+                $sheet->mergeCells('L9:L10');
+
                 // Auto-size columns
                 foreach (range('A', 'L') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
@@ -234,6 +234,46 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithEvent
                             ],
                         ],
                     ]);
+                    
+                    // Format Jumlah and Nilai columns with thousand separator and 2 decimals
+                    $sheet->getStyle('J11:J' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $sheet->getStyle('L11:L' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    
+                    // Add Grand Total row
+                    $grandTotalRow = $lastRow + 1;
+                    $sheet->setCellValue('I' . $grandTotalRow, 'GRAND TOTAL');
+                    $sheet->setCellValue('J' . $grandTotalRow, '=SUM(J11:J' . $lastRow . ')');
+                    $sheet->setCellValue('L' . $grandTotalRow, '=SUM(L11:L' . $lastRow . ')');
+                    
+                    // Style Grand Total row with header color
+                    $sheet->getStyle('A' . $grandTotalRow . ':L' . $grandTotalRow)->applyFromArray([
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
+                            'size' => 10,
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'C0504D'],
+                        ],
+                        'alignment' => [
+                            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                                'color' => ['rgb' => '000000'],
+                            ],
+                        ],
+                    ]);
+                    
+                    // Format Grand Total numbers with thousand separator and 2 decimals
+                    $sheet->getStyle('J' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $sheet->getStyle('L' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    
+                    // Merge cells for "GRAND TOTAL" label
+                    $sheet->mergeCells('A' . $grandTotalRow . ':I' . $grandTotalRow);
                 }
             },
         ];
