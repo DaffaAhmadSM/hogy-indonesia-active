@@ -5,17 +5,15 @@ namespace App\Exports;
 use App\Models\ReportPemasukan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Carbon;
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle, WithChunkReading, WithEvents
+class ExportEnvtInMain implements FromCollection, ShouldQueue, WithTitle, WithEvents
 {
 
     use Exportable, Queueable;
@@ -25,7 +23,6 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
     protected $fromDate;
     protected $toDate;
     protected $keywords;
-    private $rowNumber = 0;
 
 
     public function __construct(String $fromDate, String $toDate, $keywords)
@@ -36,9 +33,9 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
     }
 
     /**
-     * Query for export data
+     * Get collection with grouped data and subtotals
      */
-    public function query()
+    public function collection()
     {
         $keyword = $this->keywords;
         $fromDate = $this->fromDate;
@@ -85,30 +82,59 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
             });
         }
 
-        return $query;
-    }
-
-    /**
-     * Map each row for export
-     */
-    public function map($item): array
-    {
-        $this->rowNumber++;
+        $data = $query->get();
         
-        return [
-            $this->rowNumber,
-            $item->BC_CODE_NAME,
-            $item->NOMORDAFTAR,
-            $item->TANGGALDAFTAR,
-            $item->NOMORPENERIMAAN,
-            $item->TANGGALPENERIMAAN,
-            $item->PENGIRIM,
-            $item->KODEBARANG,
-            $item->NAMABARANG,
-            $item->JUMLAH,
-            $item->SATUAN,
-            $item->NILAI,
-        ];
+        // Group data by NOMORDAFTAR and add subtotals
+        $result = new Collection();
+        $grouped = $data->groupBy('NOMORDAFTAR');
+        $groupNumber = 0;
+        
+        foreach ($grouped as $nomor => $items) {
+            $groupNumber++;
+            $subtotalJumlah = 0;
+            $subtotalNilai = 0;
+            $isFirstRowInGroup = true;
+            
+            // Add data rows for this group
+            foreach ($items as $item) {
+                $result->push([
+                    $isFirstRowInGroup ? $groupNumber : '', // Group number only on first row
+                    $item->BC_CODE_NAME,
+                    $item->NOMORDAFTAR,
+                    $item->TANGGALDAFTAR,
+                    $item->NOMORPENERIMAAN,
+                    $item->TANGGALPENERIMAAN,
+                    $item->PENGIRIM,
+                    $item->KODEBARANG,
+                    $item->NAMABARANG,
+                    $item->JUMLAH,
+                    $item->SATUAN,
+                    $item->NILAI,
+                ]);
+                
+                $subtotalJumlah += $item->JUMLAH;
+                $subtotalNilai += $item->NILAI;
+                $isFirstRowInGroup = false;
+            }
+            
+            // Add subtotal row for this group
+            $result->push([
+                'Sub Total', // Row number - will be in column A and merged to I
+                '', // BC_CODE_NAME
+                '', // NOMORDAFTAR
+                '', // TANGGALDAFTAR
+                '', // NOMORPENERIMAAN
+                '', // TANGGALPENERIMAAN
+                '', // PENGIRIM
+                '', // KODEBARANG
+                '', // NAMABARANG
+                $subtotalJumlah, // Jumlah
+                '', // Satuan
+                $subtotalNilai, // Nilai
+            ]);
+        }
+        
+        return $result;
     }
     /**
      * Sheet title
@@ -118,18 +144,7 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
         return 'Laporan Pemasukan';
     }
 
-    /**
-     * Chunk size for reading data
-     */
-    public function chunkSize(): int
-    {
-        return 1000;
-    }
 
-     public function batchSize(): int
-    {
-        return 1000;
-    }
 
     /**
      * Configure sheet events
@@ -140,11 +155,6 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet;
                 $sheet->insertNewRowBefore(1, 10);
-
-                $lastRow = $sheet->getHighestRow();
-                for ($i = 11; $i <= $lastRow; $i++) {
-                    $sheet->setCellValue('A' . $i, $i - 10);
-                }
                 
                 // Company header
                 $sheet->setCellValue('A1', 'HOGY');
@@ -231,13 +241,37 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
                 
-                // Set minimum widths
-                // $sheet->getColumnDimension('A')->setWidth(5);
-                // $sheet->getColumnDimension('I')->setWidth(30);
-                
-                // Add borders to data rows
+                // Style subtotal rows and format data
                 $lastRow = $sheet->getHighestRow();
                 if ($lastRow > 10) {
+                    // Loop through all rows to identify and style subtotal rows
+                    for ($i = 11; $i <= $lastRow; $i++) {
+                        $cellA = $sheet->getCell('A' . $i)->getValue();
+                        
+                        // Check if this is a subtotal row (starts with "Sub Total")
+                        if (is_string($cellA) && strpos($cellA, 'Sub Total') === 0) {
+                            // Style subtotal row with fill color
+                            $sheet->getStyle('A' . $i . ':L' . $i)->applyFromArray([
+                                'font' => [
+                                    'bold' => true,
+                                    'size' => 10,
+                                ],
+                                'fill' => [
+                                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                                    'startColor' => ['rgb' => 'D9E1F2'], // Light blue color
+                                ],
+                                'alignment' => [
+                                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+                                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                                ],
+                            ]);
+                            
+                            // Merge cells for subtotal label (A to I for the SUBTOTAL text)
+                            $sheet->mergeCells('A' . $i . ':I' . $i);
+                        }
+                    }
+                    
+                    // Apply borders to all data cells
                     $sheet->getStyle('A11:L' . $lastRow)->applyFromArray([
                         'borders' => [
                             'allBorders' => [
@@ -254,8 +288,13 @@ class ExportEnvtInMain implements FromQuery, WithMapping, ShouldQueue, WithTitle
                     // Add Grand Total row
                     $grandTotalRow = $lastRow + 1;
                     $sheet->setCellValue('I' . $grandTotalRow, 'GRAND TOTAL');
-                    $sheet->setCellValue('J' . $grandTotalRow, '=SUM(J11:J' . $lastRow . ')');
-                    $sheet->setCellValue('L' . $grandTotalRow, '=SUM(L11:L' . $lastRow . ')');
+                    
+                    // Sum only data rows (excluding subtotal rows) - sum column J and L where column A has numbers
+                    $sumFormulaJ = '=SUM(J11:J' . $lastRow . ')/2';
+                    $sumFormulaL = '=SUM(L11:L' . $lastRow . ')/2';
+                    
+                    $sheet->setCellValue('J' . $grandTotalRow, $sumFormulaJ);
+                    $sheet->setCellValue('L' . $grandTotalRow, $sumFormulaL);
                     
                     // Style Grand Total row with header color
                     $sheet->getStyle('A' . $grandTotalRow . ':L' . $grandTotalRow)->applyFromArray([
