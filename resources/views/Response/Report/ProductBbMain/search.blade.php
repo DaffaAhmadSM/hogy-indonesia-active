@@ -1,23 +1,23 @@
 @foreach ($products->items() as $item)
     <tr class="*:text-gray-900 *:first:font-medium">
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->KODEBARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NAMABARANG }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SATUAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SALDOAWAL, 2, ',', '.') }}
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->SATUAN }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ number_format($item->SALDOAWAL, 2, ',', '.') }}
         </td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->PEMASUKAN, 2, ',', '.') }}
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ number_format($item->PEMASUKAN, 2, ',', '.') }}
         </td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top">
             {{ number_format($item->PENGELUARAN, 2, ',', '.') }}
         </td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top">
             {{ number_format($item->PENYESUAIAN, 2, ',', '.') }}
         </td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SALDOBUKU, 2, ',', '.') }}
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ number_format($item->SALDOBUKU, 2, ',', '.') }}
         </td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top">
             {{ number_format($item->STOCKOPNAME, 2, ',', '.') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->SELISIH, 2, ',', '.') }}
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ number_format($item->SELISIH, 2, ',', '.') }}
         </td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KETERANGAN }}</td>
     </tr>

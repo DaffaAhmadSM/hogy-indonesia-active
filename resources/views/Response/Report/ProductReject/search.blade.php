@@ -1,15 +1,15 @@
 @foreach ($products->items() as $item)
     <tr class="*:text-gray-900 *:first:font-medium">
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->productId }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->productId }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->productName	 }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->unitId}}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->saldoAwal }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->masuk }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->keluar }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->saldo_buku }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">0</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->unitId}}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->saldoAwal }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->masuk }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->keluar }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">0</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->saldo_buku }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">0</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">0</td>
 
     </tr>
 @endforeach

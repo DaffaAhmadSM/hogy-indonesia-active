@@ -321,7 +321,7 @@
         Stock Opname
         Selisih --}}
         <div class="flex-1 w-full overflow-auto min-h-0">
-            <table class="w-full table-fixed border-separate border-spacing-0">
+            <table class="w-full table-auto border-separate border-spacing-0">
                 <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
                     <tr class="*:font-medium *:text-gray-900">
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400">Kode barang</th>

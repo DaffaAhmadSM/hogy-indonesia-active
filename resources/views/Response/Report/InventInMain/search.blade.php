@@ -4,11 +4,11 @@
 @foreach ($prod_receipt->items() as $item)
     <tr class="*:text-gray-900 *:first:font-medium">
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->BC_CODE_NAME }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NOMORDAFTAR }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->NOMORDAFTAR }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">
             {{ Carbon::parse($item->TANGGALDAFTAR)->format('Y-m-d') }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NOMORPENERIMAAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->NOMORPENERIMAAN }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top">
             {{ Carbon::parse($item->TANGGALPENERIMAAN)->format('Y-m-d') }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENGIRIM }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>

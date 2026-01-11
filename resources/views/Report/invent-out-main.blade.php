@@ -330,7 +330,7 @@
         </div>
 
         <div class="flex-1 w-full overflow-auto min-h-0">
-            <table class="w-full table-fixed border-separate border-spacing-0">
+            <table class="w-full table-auto border-separate border-spacing-0">
                 <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
                     <tr class="text-center">
                         <th colspan="3"
