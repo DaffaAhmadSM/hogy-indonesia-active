@@ -42,7 +42,7 @@
                                 <button x-ref="button" x-on:click="toggle()" :aria-expanded="open"
                                     :aria-controls="$id('dropdown-button')" type="button"
                                     class="relative flex items-center whitespace-nowrap justify-center gap-2 py-2 rounded-lg shadow-sm bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 hover:border-gray-200 px-4">
-                                    <span>Laporan Archive</span>
+                                    <span>Laporan</span>
 
                                     <!-- Heroicon: micro chevron-down -->
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
@@ -57,38 +57,38 @@
                                 <div x-ref="panel" x-show="open" x-transition.origin.top.left
                                     x-on:click.outside="close($refs.button)" :id="$id('dropdown-button')" x-cloak
                                     class="absolute left-0 min-w-96 rounded-lg shadow-sm mt-2 z-10 origin-top-left bg-white p-1.5 outline-none border border-gray-200">
-                                    <a href="{{ route('report.invent-in-main', ['state' => 'archive']) }}"
+                                    <a href="{{ route('report.invent-in-main', ['state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         1. Laporan Pemasukan Barang Per Dokumen Pabean
                                     </a>
 
-                                    <a href="{{ route('report.invent-out-main', ['state' => 'archive']) }}"
+                                    <a href="{{ route('report.invent-out-main', ['state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-gray-50 focus-visible:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         2. Laporan Pengeluaran Barang Per Dokumen Pabean
                                     </a>
 
-                                    <a href="{{ route('report.product-wip-main', ['state' => 'archive']) }}"
+                                    <a href="{{ route('report.product-wip-main', ['state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         3. Laporan Posisi WIP
                                     </a>
 
-                                    <a href="{{ route('report.product-bb-main', ['type' => 'BBP', 'state' => 'archive']) }}"
+                                    <a href="{{ route('report.product-bb-main', ['type' => 'BBP', 'state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         4. Laporan Pertanggungjawaban Mutasi Bahan baku dan Penolong
                                     </a>
 
-                                    <a href="{{ route('report.product-bb-main', ['type' => 'MP', 'state' => 'archive']) }}"
+                                    <a href="{{ route('report.product-bb-main', ['type' => 'MP', 'state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         5. Laporan Pertanggungjawaban Mutasi
                                         Mesin dan Peralatan
                                     </a>
 
-                                    <a href="{{ route('report.product-bb-main', ['type' => 'BJ', 'state' => 'archive']) }}"
+                                    <a href="{{ route('report.product-bb-main', ['type' => 'BJ', 'state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-pmd transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         6. Laporan Pertanggungjawaban Mutasi
                                         Bahan Jadi
                                     </a>
-                                    <a href="{{ route('report.product-bb-main', ['type' => 'BR', 'state' => 'archive']) }}"
+                                    <a href="{{ route('report.product-bb-main', ['type' => 'BR', 'state' => 'active']) }}"
                                         class="px-2 lg:py-1.5 py-2 w-full flex items-center rounded-md transition-colors text-left text-gray-800 hover:bg-red-50 hover:text-red-600 focus-visible:bg-red-50 focus-visible:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed border-b-2">
                                         7. Laporan Pertanggungjawaban Mutasi
                                         Barang Scrap dan Reject
