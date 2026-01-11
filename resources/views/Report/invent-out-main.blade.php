@@ -514,6 +514,41 @@
 
                     console.log(this.$refs.date.value);
 
+                    // Auto-adjust toDate if fromDate is selected and exceeds 31 days
+                    const fromDateInput = document.getElementById('fromDate-data');
+                    const toDateInput = document.getElementById('toDate-data');
+
+                    if (fromDateInput && toDateInput) {
+                        // If this is the fromDate picker being changed
+                        if (this.$refs.date.id === 'fromDate-data' && toDateInput.value) {
+                            const from = new Date(fromDateInput.value);
+                            const to = new Date(toDateInput.value);
+                            const diffDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
+
+                            if (diffDays > 31) {
+                                // Auto-adjust toDate to be 31 days from fromDate
+                                const maxToDate = new Date(from);
+                                maxToDate.setDate(maxToDate.getDate() + 31);
+                                toDateInput.value = maxToDate.getFullYear() + "-" +
+                                    ('0' + (maxToDate.getMonth() + 1)).slice(-2) + "-" +
+                                    ('0' + maxToDate.getDate()).slice(-2);
+                            }
+                        }
+                        // If this is the toDate picker being changed
+                        else if (this.$refs.date.id === 'toDate-data' && fromDateInput.value) {
+                            const from = new Date(fromDateInput.value);
+                            const to = new Date(toDateInput.value);
+                            const diffDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
+
+                            if (diffDays > 31) {
+                                alert('Rentang tanggal tidak boleh lebih dari 31 hari!');
+                                this.$refs.date.value = '';
+                                this.datepickerValue = '';
+                                return;
+                            }
+                        }
+                    }
+
                     this.showDatepicker = false;
                 },
 

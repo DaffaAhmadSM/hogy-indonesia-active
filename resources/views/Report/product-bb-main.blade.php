@@ -417,6 +417,21 @@
 
                     console.log(this.$refs.date.value);
 
+                    // Validate date range
+                    const fromDateInput = document.getElementById('fromDate-data');
+                    const toDateInput = document.getElementById('toDate-data');
+                    if (fromDateInput && toDateInput && fromDateInput.value && toDateInput.value) {
+                        const from = new Date(fromDateInput.value);
+                        const to = new Date(toDateInput.value);
+                        const diffDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
+                        if (diffDays > 31) {
+                            alert('Rentang tanggal tidak boleh lebih dari 31 hari!');
+                            this.$refs.date.value = '';
+                            this.datepickerValue = '';
+                            return;
+                        }
+                    }
+
                     this.showDatepicker = false;
                 },
 

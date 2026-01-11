@@ -93,6 +93,14 @@ class InventInMainController extends Controller
         }
         $fromDate = $request->filled('fromDate') ? Carbon::createFromFormat('Y-m-d', $request->input('fromDate'))->toDateString() : Carbon::now();
         $toDate = $request->filled('toDate') ? Carbon::createFromFormat('Y-m-d', $request->input('toDate'))->toDateString() : Carbon::now();
+
+        // Validate date range not exceeding 31 days
+        $from = Carbon::parse($fromDate);
+        $to = Carbon::parse($toDate);
+        if ($from->diffInDays($to) > 31) {
+            $toast = ['showToast' => ['message' => 'Rentang tanggal tidak boleh lebih dari 31 hari!', 'type' => 'error']];
+            return response('')->header('HX-Trigger-toast', json_encode($toast));
+        }
         $keywords = $request->input('keyword');
 
         $fileName = 'Laporan_Pemasukan_Barang_' . ($fromDate ?? '') . '_' . ($toDate ?? '') . '.xlsx';
@@ -126,6 +134,17 @@ class InventInMainController extends Controller
             return response()->json(['errors' => $validator->errors()->first()], 422);
         }
 
+        $fromDate = $request->filled('fromDate') ? $request->input('fromDate') : Carbon::now()->toDateString();
+        $toDate = $request->filled('toDate') ? $request->input('toDate') : Carbon::now()->toDateString();
+
+        // Validate date range not exceeding 31 days
+        $from = Carbon::parse($fromDate);
+        $to = Carbon::parse($toDate);
+        if ($from->diffInDays($to) > 31) {
+            $toast = ['showToast' => ['message' => 'Rentang tanggal tidak boleh lebih dari 31 hari!', 'type' => 'error']];
+            return response('')->header('HX-Trigger-toast', json_encode($toast));
+        }
+
         // return ReportPemasukan::cursorPaginate(10);
 
         $columns = [
@@ -147,7 +166,7 @@ class InventInMainController extends Controller
 
         $tableName = (new ReportPemasukan)->getTable();
         $prod_receipt = ReportPemasukan::select($columns)
-        ->selectRaw("CASE 
+        ->selectRaw("CASE
             WHEN BCTYPE = 9 THEN 'BC40'
             WHEN BCTYPE = 10 THEN 'BC27'
             WHEN BCTYPE = 11 THEN 'BC23'

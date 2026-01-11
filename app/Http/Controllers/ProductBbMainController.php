@@ -68,6 +68,14 @@ class ProductBbMainController extends Controller
         // $fromDate = $validated['fromDate'] ?? Carbon::now()->toDateString();
         $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
         $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
+
+        // Validate date range not exceeding 31 days
+        $from = Carbon::parse($fromDate);
+        $to = Carbon::parse($toDate);
+        if ($from->diffInDays($to) > 31) {
+            $toast = ['showToast' => ['message' => 'Rentang tanggal tidak boleh lebih dari 31 hari!', 'type' => 'error']];
+            return response('')->header('HX-Trigger-toast', json_encode($toast));
+        }
         if($type == "BARANG_JADI"){
             $warehouseId = 'FGS';
         }else {
@@ -151,6 +159,14 @@ class ProductBbMainController extends Controller
         // 2. SET DEFAULTS & GET INPUTS
         $fromDate = Carbon::parse($validated['fromDate'] ?? Carbon::now()->toDateString())->toDateString();
         $toDate = Carbon::parse($validated['toDate'] ?? Carbon::now()->toDateString())->toDateString();
+
+        // Validate date range not exceeding 31 days
+        $from = Carbon::parse($fromDate);
+        $to = Carbon::parse($toDate);
+        if ($from->diffInDays($to) > 31) {
+            $toast = ['showToast' => ['message' => 'Rentang tanggal tidak boleh lebih dari 31 hari!', 'type' => 'error']];
+            return response('')->header('HX-Trigger-toast', json_encode($toast));
+        }
         $reportType = '';
         switch ($type) {
             case 'BAHAN_BAKU_PENOLONG':
