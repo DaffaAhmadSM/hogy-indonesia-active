@@ -36,11 +36,11 @@ class ProductBbMainController extends Controller
                 break;
             case 'BR':
                 $type = 'BARANG_REJECT';
-                $title .= 'Barang Reject';
+                $title .= 'Barang';
                 break;
             case 'BS':
                 $type = 'BARANG_SCRAP';
-                $title .= 'Barang Scrap';
+                $title .= 'Barang';
                 break;
             default:
                 abort(404, 'Invalid product type');
@@ -156,7 +156,7 @@ class ProductBbMainController extends Controller
             case 'BAHAN_BAKU_PENOLONG':
                 $reportType = '04 Mutasi Bahan Baku';
                 break;
-            case 'MESIN_PERALATAN': 
+            case 'MESIN_PERALATAN':
                 $reportType = '05 Mutasi Mesin dan Peralatan';
                 break;
             case 'BARANG_JADI':
