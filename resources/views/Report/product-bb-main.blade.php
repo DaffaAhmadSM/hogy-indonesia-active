@@ -9,9 +9,25 @@
 
     <div class="flex flex-col gap-0 w-full flex-1 min-h-0">
         <div class="flex align-middle justify-center shrink-0">
-            <h1 class="text-xl font-bold mb-2">{{ $title }} {{ $state != 'active' ? $state : '' }}</h1>
+            <div class="flex flex-col items-center gap-2">
+                <h1 class="text-xl font-bold mb-2">{{ $title }} {{ $state != 'active' ? $state : '' }}</h1>
+
+                @if (in_array($type, ['BARANG_REJECT', 'BARANG_SCRAP']))
+                    <div class="flex gap-2 mb-2">
+                        <a href="{{ route('report.product-bb-main', ['type' => 'BR', 'state' => $state]) }}"
+                            class="px-4 py-2 text-sm font-semibold rounded-md {{ $type === 'BARANG_REJECT' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                            Barang Reject
+                        </a>
+                        <a href="{{ route('report.product-bb-main', ['type' => 'BS', 'state' => $state]) }}"
+                            class="px-4 py-2 text-sm font-semibold rounded-md {{ $type === 'BARANG_SCRAP' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                            Barang Scrap
+                        </a>
+                    </div>
+                @endif
+            </div>
         </div>
-        <div class="flex flex-row px-6 py-2 shrink-0" method="POST" hx-target="#prod-receipt-table-body" hx-swap="innerHTML">
+        <div class="flex flex-row px-6 py-2 shrink-0" method="POST" hx-target="#prod-receipt-table-body"
+            hx-swap="innerHTML">
             @csrf
             <div class="antialiased font-sans shrink-0">
                 <div x-data="app()" x-init="[initDate(), getNoOfDays()]" x-cloak>
