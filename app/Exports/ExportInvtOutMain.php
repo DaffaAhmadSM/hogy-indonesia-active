@@ -64,6 +64,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                 "JUMLAH",
                 "SATUAN",
                 "NILAI",
+                "CURRENCY"
             ])
             ->orderBy("$tableName.NOMORDAFTAR", "desc")
             ->orderBy("$tableName.KODEBARANG")
@@ -108,6 +109,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                     $item->NAMABARANG,
                     $item->JUMLAH,
                     $item->SATUAN,
+                    $item->CURRENCY,
                     $item->NILAI,
                 ]);
                 
@@ -129,6 +131,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                 '', // NAMABARANG
                 $subtotalJumlah, // Jumlah
                 '', // Satuan
+                '', // Currency
                 $subtotalNilai == 0 ? 0 : $subtotalNilai, // Nilai
             ]);
         }
@@ -201,7 +204,8 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                 $sheet->setCellValue('I9', 'Nama barang');
                 $sheet->setCellValue('J9', 'Jumlah');
                 $sheet->setCellValue('K9', 'Satuan');
-                $sheet->setCellValue('L9', 'Nilai');
+                $sheet->setCellValue('L9', 'Currency');
+                $sheet->setCellValue('M9', 'Nilai');
                 
                 // Table headers - Row 10 (second header row)
                 $sheet->setCellValue('B10', 'Jenis');
@@ -216,7 +220,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                 $sheet->getStyle('A7')->getFont()->setBold(false)->setSize(9);
                 
                 // Header row styling (row 9-10)
-                $sheet->getStyle('A9:L10')->applyFromArray([
+                $sheet->getStyle('A9:M10')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'],
@@ -247,10 +251,11 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                 $sheet->mergeCells('I9:I10'); // Nama barang
                 $sheet->mergeCells('J9:J10'); // Jumlah
                 $sheet->mergeCells('K9:K10'); // Satuan
-                $sheet->mergeCells('L9:L10'); // Nilai
+                $sheet->mergeCells('L9:L10'); // Currency
+                $sheet->mergeCells('M9:M10'); // Nilai
                 
                 // Auto-size columns
-                foreach (range('A', 'L') as $col) {
+                foreach (range('A', 'M') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
                 
@@ -264,7 +269,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                         // Check if this is a subtotal row (starts with "Sub Total")
                         if (is_string($cellA) && strpos($cellA, 'Sub Total') === 0) {
                             // Style subtotal row with fill color
-                            $sheet->getStyle('A' . $i . ':L' . $i)->applyFromArray([
+                            $sheet->getStyle('A' . $i . ':M' . $i)->applyFromArray([
                                 'font' => [
                                     'bold' => true,
                                     'size' => 10,
@@ -285,7 +290,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                     }
                     
                     // Apply borders to all data cells
-                    $sheet->getStyle('A11:L' . $lastRow)->applyFromArray([
+                    $sheet->getStyle('A11:M' . $lastRow)->applyFromArray([
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -296,7 +301,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                     
                     // Format Jumlah and Nilai columns with thousand separator and 2 decimals
                     $sheet->getStyle('J11:J' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
-                    $sheet->getStyle('L11:L' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $sheet->getStyle('M11:M' . $lastRow)->getNumberFormat()->setFormatCode('#,##0.00');
                     
                     // Add Grand Total row
                     $grandTotalRow = $lastRow + 1;
@@ -304,13 +309,13 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                     
                     // Sum all J from 11 to lastRow and devided by 2 to avoid double counting subtotals
                     $sumFormulaJ = '=SUM(J11:J' . $lastRow . ')/2';
-                    $sumFormulaL = '=SUM(L11:L' . $lastRow . ')/2';
+                    $sumFormulaM = '=SUM(M11:M' . $lastRow . ')/2';
                     
                     $sheet->setCellValue('J' . $grandTotalRow, $sumFormulaJ);
-                    $sheet->setCellValue('L' . $grandTotalRow, $sumFormulaL);
+                    $sheet->setCellValue('M' . $grandTotalRow, $sumFormulaM);
                     
                     // Style Grand Total row with header color
-                    $sheet->getStyle('A' . $grandTotalRow . ':L' . $grandTotalRow)->applyFromArray([
+                    $sheet->getStyle('A' . $grandTotalRow . ':M' . $grandTotalRow)->applyFromArray([
                         'font' => [
                             'bold' => true,
                             'color' => ['rgb' => 'FFFFFF'],
@@ -334,7 +339,7 @@ class ExportInvtOutMain implements FromCollection, ShouldQueue, WithEvents, With
                     
                     // Format Grand Total numbers with thousand separator and 2 decimals
                     $sheet->getStyle('J' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
-                    $sheet->getStyle('L' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $sheet->getStyle('M' . $grandTotalRow)->getNumberFormat()->setFormatCode('#,##0.00');
                     
                     // Merge cells for "GRAND TOTAL" label
                     $sheet->mergeCells('A' . $grandTotalRow . ':I' . $grandTotalRow);
