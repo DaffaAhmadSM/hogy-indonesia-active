@@ -161,6 +161,7 @@ class InventInMainController extends Controller
                 "NAMABARANG",
                 "JUMLAH",
                 "SATUAN",
+                "CURRENCY",
                 "NILAI",
         ];
 

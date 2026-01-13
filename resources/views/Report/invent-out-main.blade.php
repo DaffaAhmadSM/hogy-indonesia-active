@@ -353,6 +353,8 @@
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
                             rowspan="2">Satuan</th>
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
+                            rowspan="2">Currency</th>
+                        <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-l-0"
                             rowspan="2">Nilai</th>
                     </tr>
                     <tr class="text-center">
@@ -364,9 +366,9 @@
                             class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0 border-r-0">
                             Tanggal</th>
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0">
-                            nomor</th>
+                            Nomor</th>
                         <th class="px-3 py-2 whitespace-normal break-words border border-gray-400 border-t-0 border-l-0">
-                            tanggal</th>
+                            Tanggal</th>
                     </tr>
                 </thead>
 

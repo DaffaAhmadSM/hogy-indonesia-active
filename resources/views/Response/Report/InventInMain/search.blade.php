@@ -4,19 +4,20 @@
 @foreach ($prod_receipt->items() as $item)
     <tr class="*:text-gray-900 *:first:font-medium">
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->BC_CODE_NAME }}</td>
-        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->NOMORDAFTAR }}</td>
-        <td class="px-3 py-2 whitespace-nowrap align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top text-center text-center">{{ $item->NOMORDAFTAR }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top text-center">
             {{ Carbon::parse($item->TANGGALDAFTAR)->format('Y-m-d') }}</td>
-        <td class="px-3 py-2 whitespace-nowrap align-top">{{ $item->NOMORPENERIMAAN }}</td>
-        <td class="px-3 py-2 whitespace-nowrap align-top">
+        <td class="px-3 py-2 whitespace-nowrap align-top text-center">{{ $item->NOMORPENERIMAAN }}</td>
+        <td class="px-3 py-2 whitespace-nowrap align-top text-center">
             {{ Carbon::parse($item->TANGGALPENERIMAAN)->format('Y-m-d') }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->PENGIRIM }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->KODEBARANG }}</td>
         <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->NAMABARANG }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->JUMLAH, 2, ',', '.') }}
+        <td class="px-3 py-2 whitespace-normal break-words align-top text-right">{{ number_format($item->JUMLAH, 2, ',', '.') }}
         </td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ $item->SATUAN }}</td>
-        <td class="px-3 py-2 whitespace-normal break-words align-top">{{ number_format($item->NILAI, 2, ',', '.') }}
+        <td class="px-3 py-2 whitespace-normal break-words align-top text-center">{{ $item->SATUAN }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top text-center">{{ $item->CURRENCY }}</td>
+        <td class="px-3 py-2 whitespace-normal break-words align-top text-right">{{ number_format($item->NILAI, 2, ',', '.') }}
         </td>
     </tr>
 @endforeach

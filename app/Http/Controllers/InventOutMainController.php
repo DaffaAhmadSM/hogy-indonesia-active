@@ -203,6 +203,7 @@ class InventOutMainController extends Controller
         "NAMABARANG",
         "JUMLAH",
         "SATUAN",
+        "CURRENCY",
         "NILAI",
         ];
 
